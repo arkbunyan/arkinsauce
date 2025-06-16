@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-mode="triodle">
+  <div id="auth">
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <button id="login-btn">Log In</button>
+    <button id="reg-btn">Sign Up</button>
+    <button id="logout-btn" style="display:none">Log Out</button>
+    <span>Streak: <span id="streak-count">0</span></span>
+  </div>
   <div class="top-bar">
     <button id="reset-btn">Reset</button>
     <span id="streak-display">Streak: <span id="streak-count">0</span></span>

@@ -59,12 +59,58 @@ var langMap = {
 };
 
 let streakCount = 0;
-const streakEl = document.getElementById('streak-count');
 
-function updateStreak() {
-  streakEl.textContent = streakCount;
+async function fetchStreak() {
+  const res = await fetch('api/get_streak.php');
+  const {streak} = await res.json();
+  streakCount = streak;
+  document.getElementById('streak-count').textContent = streak;
 }
-updateStreak();
+
+async function updateStreak() {
+  await fetch('api/update_streak.php', {
+    method: 'POST',
+    body: JSON.stringify({streak: streakCount})
+  });
+}
+
+// on win:
+function onWin() {
+  streakCount++;
+  document.getElementById('streak-count').textContent = streakCount;
+  updateStreak();
+}
+
+// Auth buttons
+document.getElementById('login-btn').onclick = async () => {
+  const user = document.getElementById('user').value;
+  const pass = document.getElementById('pass').value;
+  const res = await fetch('api/login.php', {
+    method:'POST',
+    body: JSON.stringify({username:user,password:pass})
+  });
+  const data = await res.json();
+  if (data.success) {
+    await fetchStreak();
+    toggleAuth(true);
+  } else alert(data.error);
+};
+
+document.getElementById('reg-btn').onclick = async () => {
+  // same as login, but calls register.php
+};
+
+document.getElementById('logout-btn').onclick = async () => {
+  await fetch('api/logout.php');
+  toggleAuth(false);
+};
+
+function toggleAuth(loggedIn) {
+  document.getElementById('login-btn').style.display = loggedIn ? 'none' : '';
+  document.getElementById('reg-btn').style.display = loggedIn ? 'none' : '';
+  document.getElementById('logout-btn').style.display = loggedIn ? '' : 'none';
+}
+
 
 async function translateWord(word, targetLang) {
   const response = await fetch("https://libretranslate.de/translate", {
