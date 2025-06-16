@@ -58,6 +58,21 @@ var langMap = {
   hindi: 'hi'
 };
 
+document.addEventListener('DOMContentLoaded', async () => {
+  initGame();
+  addAuthEventListeners();
+
+  const authRes = await fetch('api/check_auth.php');
+  const { loggedIn } = await authRes.json();
+
+  toggleAuth(loggedIn);
+
+  if (loggedIn) {
+    await fetchStreak();
+  }
+});
+
+
 let streakCount = 0;
 
 async function fetchStreak() {
@@ -87,6 +102,7 @@ document.getElementById('login-btn').onclick = async () => {
   const pass = document.getElementById('pass').value;
   const res = await fetch('api/login.php', {
     method:'POST',
+    headers: {'Content-Type':'application/json'},
     body: JSON.stringify({username:user,password:pass})
   });
   const data = await res.json();
@@ -97,7 +113,17 @@ document.getElementById('login-btn').onclick = async () => {
 };
 
 document.getElementById('reg-btn').onclick = async () => {
-  // same as login, but calls register.php
+  const user = document.getElementById('user').value;
+  const pass = document.getElementById('pass').value;
+  const res = await fetch('api/register.php', {
+    method:'POST',
+    body: JSON.stringify({username:user,password:pass})
+  });
+  const data = await res.json();
+  if (data.success) {
+    await fetchStreak();
+    toggleAuth(true);
+  } else alert(data.error);
 };
 
 document.getElementById('logout-btn').onclick = async () => {
@@ -253,8 +279,6 @@ function handleEnter() {
 
   // win?
   if (status.every(s => s === 'correct')) {
-    streakCount++;
-    updateStreak();
     return endGame(`You got it! The word was ${solution}`);
   }
 
@@ -291,6 +315,7 @@ function colorKey(letter, status) {
 
 function endGame(msg) {
   gameOver = true;
+  onWin();
   answerEl.textContent = msg;
   transUI.classList.remove('hidden');
 }
