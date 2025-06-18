@@ -2,7 +2,7 @@
 session_set_cookie_params([
   'path' => '/',       // root of domain
   'httponly' => true,  // good practice
-  // you can also customize 'lifetime', 'secure', etc. here
+  
 ]);
 
 session_start();
