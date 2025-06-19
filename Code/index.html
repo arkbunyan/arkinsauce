@@ -2,37 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Fourdle</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Fourdle / Triodle</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-mode="fourdle">
-  <div id="auth">
-    <input id="user" placeholder="Username">
-    <input id="pass" type="password" placeholder="Password">
-    <button id="login-btn">Log In</button>
-    <button id="reg-btn">Sign Up</button>
-    <button id="logout-btn" style="display:none">Log Out</button>
-    <span>Streak: <span id="streak-count">0</span></span>
-  </div>
-  <div class="top-bar">
-    <button id="reset-btn">Reset</button>
-    <a href="triodle.html" class="mode-link">Triodle</a>
+<body>
+  <!-- LOGIN CARD -->
+  <div id="auth" class="auth-container">
+    <input id="user" class="auth-input"  type="text"     placeholder="Username">
+    <input id="pass" class="auth-input"  type="password" placeholder="Password">
+    <button id="login-btn"  class="auth-btn">Log In</button>
+    <button id="reg-btn"    class="auth-btn">Sign Up</button>
+    <button id="logout-btn" class="auth-btn" style="display:none">
+      Log Out
+    </button>
   </div>
 
-  <h1 id="title">Fourdle</h1>
-  <div id="board" style="--cols:4; --rows:7;"></div>
+  <!-- CONTROLS GRID + TITLE -->
+  <div class="controls">
+    <button id="reset-btn" class="control-btn">Reset</button>
+    <h1 id="title">Fourdle</h1>
+    <button id="mode-btn"  class="control-btn">Triodle</button>
+  </div>
 
-  <div id="message" class="message"></div>
+  <!-- STREAK -->
+  <div id="streak-display" class="streak">
+    Streak: <span id="streak-count">0</span>
+  </div>
 
+  <!-- BOARD -->
+  <div id="board" style="--cols:4;"></div>
+
+  <!-- ON-SCREEN KEYS -->
   <div id="keyboard"></div>
 
-  <h2 id="answer"></h2>
+  <!-- FEEDBACK -->
+  <div id="answer"></div>
+  <div id="message" class="message"></div>
+
+  <!-- TRANSLATION -->
   <div id="translation-ui" class="hidden">
-    <input type="text" id="lang-input" placeholder="e.g. German, Spanish">
+    <input id="lang-input" type="text" placeholder="Language">
     <button id="translate-btn">Translate</button>
-    <p id="translation-result"></p>
   </div>
+  <div id="translation-result"></div>
+
+  <!-- SCRIPTS -->
   <script src="wordbank.js"></script>
   <script src="game.js"></script>
 </body>

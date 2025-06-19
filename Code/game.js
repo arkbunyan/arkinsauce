@@ -1,238 +1,207 @@
-// =======================
-// Utility Functions
-// =======================
-
-// Translate using LibreTranslate API
-async function translateWord(word, targetLang) {
-  const response = await fetch("https://libretranslate.de/translate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      q: word,
-      source: "en",
-      target: targetLang.toLowerCase().slice(0, 2),
-      format: "text"
-    })
-  });
-  const data = await response.json();
-  return data.translatedText;
-}
-
-// =======================
-// Configuration & Globals
-// =======================
-
-// Mode detection (fourdle or triodle)
-const mode = document.body.dataset.mode;
-const isFourdle = mode === "fourdle";
-
-// Word bank selection (defined in external wordbank.js)
+//  MODE TOGGLE 
+let isFourdle = true;   // true = 4-letter mode, false = 3-letter mode
 let cols, wordList, guessList;
-if (isFourdle) {
-  cols = 4;
-  wordList = fourLetterWords;
-  guessList = fourLetterGuesses;
-} else {
-  cols = 3;
-  wordList = threeLetterWords;
-  guessList = threeLetterGuesses;
+
+const modeBtn = document.getElementById('mode-btn');
+modeBtn.addEventListener('click', () => {
+  isFourdle = !isFourdle;
+  applyMode();
+  initGame();
+  modeBtn.blur();
+});
+
+function applyMode() {
+  if (isFourdle) {
+    cols      = 4;
+    wordList  = fourLetterWords;
+    guessList = fourLetterGuesses;
+    document.getElementById('title').textContent = 'Fourdle';
+    modeBtn.textContent = 'Triodle';
+  } else {
+    cols      = 3;
+    wordList  = threeLetterWords;
+    guessList = threeLetterGuesses;
+    document.getElementById('title').textContent = 'Triodle';
+    modeBtn.textContent = 'Fourdle';
+  }
+  document.getElementById('board')
+          .style.setProperty('--cols', cols);
 }
 
-// Apply board styling
-const board = document.getElementById('board');
-board.style.setProperty('--cols', cols);
 
-// Cached DOM elements
-const keyboard   = document.getElementById('keyboard');
-const answerEl   = document.getElementById('answer');
-const messageEl  = document.getElementById('message');
-const resetBtn   = document.getElementById('reset-btn');
-const transBtn   = document.getElementById('translate-btn');
-const langInput  = document.getElementById('lang-input');
-const transRes   = document.getElementById('translation-result');
-const transUI    = document.getElementById('translation-ui');
+//  GAME SETUP 
+const board     = document.getElementById('board');
+const keyboard  = document.getElementById('keyboard');
+const answerEl  = document.getElementById('answer');
+const messageEl = document.getElementById('message');
+const resetBtn  = document.getElementById('reset-btn');
+const rows      = 7;
 
-// Game state
-const rows = 7;
-let row = 0, col = 0;
-let solution = '';
-let gameOver = false;
+let solution, row, col, gameOver;
 
-// Language mappings for manual translation UI
-const langMap = {
-  german: 'de',
-  spanish: 'es',
-  french: 'fr',
-  italian: 'it',
-  portuguese: 'pt',
-  dutch: 'nl',
-  hindi: 'hi'
-};
+function initGame() {
+  // pick a random solution
+  solution = wordList[
+    Math.floor(Math.random() * wordList.length)
+  ].toUpperCase();
+  row = 0; col = 0; gameOver = false;
 
-// =======================
-// Authentication & Streak
-// =======================
-
-let streakCount = 0;
-
-// Fetch current streak from server
-async function fetchStreak() {
-  try {
-    const res = await fetch('api/get_streak.php');
-    const { streak } = await res.json();
-    streakCount = streak;
-    document.getElementById('streak-count').textContent = streakCount;
-  } catch (err) {
-    console.error('Error fetching streak:', err);
-  }
-}
-
-// Update streak on server
-async function updateStreak() {
-  try {
-    await fetch('api/update_streak.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ streak: streakCount })
-    });
-  } catch (err) {
-    console.error('Error updating streak:', err);
-  }
-}
-
-// Increment streak after a win
-function onWin() {
-  streakCount++;
-  document.getElementById('streak-count').textContent = streakCount;
-  updateStreak();
-}
-
-// Toggle auth UI buttons
-function toggleAuth(loggedIn) {
-  document.getElementById('login-btn').style.display  = loggedIn ? 'none' : '';
-  document.getElementById('reg-btn').style.display    = loggedIn ? 'none' : '';
-  document.getElementById('logout-btn').style.display = loggedIn ? '' : 'none';
-}
-
-// Auth button handlers
-document.getElementById('login-btn').onclick = async () => {
-  const user = document.getElementById('user').value;
-  const pass = document.getElementById('pass').value;
-  try {
-    const res = await fetch('api/login.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user, password: pass })
-    });
-    const data = await res.json();
-    if (data.success) {
-      await fetchStreak();
-      toggleAuth(true);
-    } else alert(data.error);
-  } catch (err) {
-    console.error('Login error:', err);
-  }
-};
-
-document.getElementById('reg-btn').onclick = async () => {
-  const user = document.getElementById('user').value;
-  const pass = document.getElementById('pass').value;
-  try {
-    const res = await fetch('api/register.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: user, password: pass })
-    });
-    const data = await res.json();
-    if (data.success) {
-      await fetchStreak();
-      toggleAuth(true);
-    } else alert(data.error);
-  } catch (err) {
-    console.error('Register error:', err);
-  }
-};
-
-document.getElementById('logout-btn').onclick = async () => {
-  try {
-    await fetch('api/logout.php');
-    streakCount = 0;
-    document.getElementById('streak-count').textContent = streakCount;
-    toggleAuth(false);
-  } catch (err) {
-    console.error('Logout error:', err);
-  }
-};
-
-// =======================
-// Game Initialization
-// =======================
-
-function init() {
-  // Pick a random solution word
-  solution = wordList[Math.floor(Math.random() * wordList.length)].toUpperCase();
-  row = 0;
-  col = 0;
-  gameOver = false;
-
-  // Reset UI
-  answerEl.textContent = '';
-  transUI.classList.add('hidden');
-  transRes.textContent = '';
-  messageEl.textContent = '';
-
-  // Build board
+  // clear board tiles
   board.innerHTML = '';
-  for (let i = 0; i < rows * cols; i++) {
-    const tile = document.createElement('div');
-    tile.className = 'tile';
-    board.appendChild(tile);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      board.appendChild(tile);
+    }
   }
 
-  // Build on-screen keyboard
+  // clear keyboard
   keyboard.innerHTML = '';
-  ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'].forEach((line, idx) => {
+  ['QWERTYUIOP','ASDFGHJKL','ZXCVBNM'].forEach((line, idx) => {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'keyboard-row';
 
+    // ENTER on third row start
     if (idx === 2) {
-      const enterKey = document.createElement('div');
-      enterKey.textContent = 'ENTER';
-      enterKey.className = 'key';
-      enterKey.onclick = () => handleKey('ENTER');
-      rowDiv.appendChild(enterKey);
+      const enter = document.createElement('button');
+      enter.textContent = 'ENTER';
+      enter.className = 'key';
+      enter.onclick = () => handleKey('ENTER');
+      rowDiv.appendChild(enter);
     }
 
+    // letter keys
     for (const ch of line) {
-      const key = document.createElement('div');
+      const key = document.createElement('button');
       key.textContent = ch;
       key.className = 'key';
       key.onclick = () => handleKey(ch);
       rowDiv.appendChild(key);
     }
 
+    // BACK on third row end
     if (idx === 2) {
-      const delKey = document.createElement('div');
-      delKey.textContent = 'BACK';
-      delKey.className = 'key';
-      delKey.onclick = () => handleKey('BACK');
-      rowDiv.appendChild(delKey);
+      const back = document.createElement('button');
+      back.textContent = 'BACK';
+      back.className = 'key';
+      back.onclick = () => handleKey('BACK');
+      rowDiv.appendChild(back);
     }
 
     keyboard.appendChild(rowDiv);
   });
+
+  // hide answer and messages
+  answerEl.textContent = '';
+  messageEl.textContent = '';
+  document.getElementById('translation-ui').classList.add('hidden');
+  document.getElementById('translation-result').textContent = '';
 }
 
-// =======================
-// Input Handling
-// =======================
+resetBtn.addEventListener('click', () => {
+  initGame();
+  resetBtn.blur();
+});
 
+
+//  STREAK & AUTH 
+let streakCount = 0;
+
+const userIn    = document.getElementById('user');
+const passIn    = document.getElementById('pass');
+const loginBtn  = document.getElementById('login-btn');
+const regBtn    = document.getElementById('reg-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const streakEl  = document.getElementById('streak-count');
+
+async function fetchStreak() {
+  const res = await fetch('api/get_streak.php');
+  const data = await res.json();
+  streakCount = data.streak || 0;
+  streakEl.textContent = streakCount;
+}
+
+async function updateStreak() {
+  await fetch('api/update_streak.php', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({streak: streakCount})
+  });
+}
+
+function onWin() {
+  streakCount++;
+  streakEl.textContent = streakCount;
+  updateStreak();
+}
+
+function toggleAuth(loggedIn) {
+  loginBtn.style.display  = loggedIn ? 'none' : '';
+  regBtn.style.display    = loggedIn ? 'none' : '';
+  logoutBtn.style.display = loggedIn ? '' : 'none';
+}
+
+loginBtn.addEventListener('click', async () => {
+  const res = await fetch('api/login.php', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      username: userIn.value,
+      password: passIn.value
+    })
+  });
+  const data = await res.json();
+  if (data.success) {
+    toggleAuth(true);
+    fetchStreak();
+  } else {
+    alert(data.error);
+  }
+});
+
+regBtn.addEventListener('click', async () => {
+  const res = await fetch('api/register.php', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      username: userIn.value,
+      password: passIn.value
+    })
+  });
+  const data = await res.json();
+  if (data.success) {
+    toggleAuth(true);
+    fetchStreak();
+  } else {
+    alert(data.error);
+  }
+});
+
+logoutBtn.addEventListener('click', async () => {
+  await fetch('api/logout.php');
+  toggleAuth(false);
+  streakCount = 0;
+  streakEl.textContent = '0';
+});
+
+// check session on load
+fetch('api/check_auth.php')
+  .then(r => r.json())
+  .then(({loggedIn}) => {
+    toggleAuth(loggedIn);
+    if (loggedIn) fetchStreak();
+  })
+  .catch(e => console.error(e));
+
+
+//  INPUT HANDLING ===
 function handleKey(k) {
   if (gameOver) return;
   if (k === 'ENTER') return handleEnter();
-  if (k === 'BACK' || k === '⌫') return handleDelete();
+  if (k === 'BACK')  return handleDelete();
   if (/^[A-Z]$/.test(k) && col < cols) {
-    board.children[row * cols + col].textContent = k;
+    board.children[row*cols + col].textContent = k;
     col++;
   }
 }
@@ -240,47 +209,42 @@ function handleKey(k) {
 function handleDelete() {
   if (col > 0) {
     col--;
-    board.children[row * cols + col].textContent = '';
+    board.children[row*cols + col].textContent = '';
   }
 }
 
 function handleEnter() {
-  if (gameOver || col < cols) return;
+  if (col < cols) return;
 
-  // Build guess word
+  // build guess
   let guess = '';
   for (let i = 0; i < cols; i++) {
-    guess += board.children[row * cols + i].textContent;
+    guess += board.children[row*cols + i].textContent;
   }
+  guess = guess.toLowerCase();
 
-  // Validate guess
-  if (!guessList.includes(guess.toLowerCase())) {
-    messageEl.textContent = 'Not in word list';
-    messageEl.classList.add('visible');
-    setTimeout(() => {
-      messageEl.classList.remove('visible');
-      messageEl.textContent = '';
-    }, 2000);
+  // invalid word
+  if (!guessList.includes(guess)) {
+    messageEl.textContent = 'Not in list';
+    setTimeout(() => messageEl.textContent = '', 1500);
     return;
   }
 
-  // Evaluate guess against solution
-  const solArr   = solution.split('');
-  const guessArr = guess.split('');
-  const status   = Array(cols).fill('absent');
+  // evaluate
+  const solArr = solution.split('');
+  const status = Array(cols).fill('absent');
 
-  // Mark correct positions
+  // correct spots
   for (let i = 0; i < cols; i++) {
-    if (guessArr[i] === solArr[i]) {
+    if (guess[i] === solArr[i].toLowerCase()) {
       status[i] = 'correct';
       solArr[i] = null;
     }
   }
-
-  // Mark present but misplaced
+  // present elsewhere
   for (let i = 0; i < cols; i++) {
     if (status[i] === 'absent') {
-      const idx = solArr.indexOf(guessArr[i]);
+      const idx = solArr.indexOf(guess[i].toUpperCase());
       if (idx > -1) {
         status[i] = 'present';
         solArr[idx] = null;
@@ -288,134 +252,91 @@ function handleEnter() {
     }
   }
 
-  // Apply tile and key colors
+  // color tiles and keys
+  const keys = document.querySelectorAll('.key');
   for (let i = 0; i < cols; i++) {
-    const tile = board.children[row * cols + i];
+    const tile = board.children[row*cols + i];
     tile.classList.add(status[i]);
-    colorKey(guessArr[i], status[i]);
+
+    // key coloring with priority: correct > present > absent
+    keys.forEach(kb => {
+      if (kb.textContent === guess[i].toUpperCase()) {
+        if (status[i] === 'correct') {
+          kb.classList.remove('present','absent');
+          kb.classList.add('correct');
+        } else if (status[i] === 'present') {
+          if (!kb.classList.contains('correct')) {
+            kb.classList.remove('absent');
+            kb.classList.add('present');
+          }
+        } else { // absent
+          if (!kb.classList.contains('correct') &&
+              !kb.classList.contains('present')) {
+            kb.classList.add('absent');
+          }
+        }
+      }
+    });
   }
 
-  // Win condition
+  // win
   if (status.every(s => s === 'correct')) {
-    return endGame(`You got it! The word was ${solution}`);
+    onWin();
+    gameOver = true;
+    answerEl.textContent = solution;
+    document.getElementById('translation-ui')
+            .classList.remove('hidden');
+    return;
   }
 
-  // Move to next row or end game
+  // next attempt or fail
   row++;
   col = 0;
   if (row === rows) {
     streakCount = 0;
+    streakEl.textContent = '0';
     updateStreak();
-    endGame(`Game over! The word was ${solution}`);
+    gameOver = true;
+    answerEl.textContent = solution;
+    document.getElementById('translation-ui')
+            .classList.remove('hidden');
   }
 }
 
-// =======================
-// UI Feedback
-// =======================
-
-function colorKey(letter, status) {
-  const keys = keyboard.querySelectorAll('.key');
-  keys.forEach(k => {
-    if (k.textContent === letter) {
-      if (!k.classList.contains('correct')) {
-        if (
-          status === 'correct' ||
-          (status === 'present' && !k.classList.contains('present'))
-        ) {
-          k.classList.add(status);
-        } else if (status === 'absent' && !k.classList.contains('present')) {
-          k.classList.add('absent');
-        }
-      }
-    }
-  });
-}
-
-function endGame(msg) {
-  gameOver = true;
-  onWin();
-  answerEl.textContent = msg;
-  transUI.classList.remove('hidden');
-}
-
-// =======================
-// Event Listeners
-// =======================
-
-// DOM ready: init game and auth
-document.addEventListener('DOMContentLoaded', async () => {
-  init();
-  addAuthEventListeners && addAuthEventListeners();
-  try {
-    const authRes = await fetch('api/check_auth.php');
-    const { loggedIn } = await authRes.json();
-    toggleAuth(loggedIn);
-    if (loggedIn) await fetchStreak();
-  } catch (e) {
-    console.error('Auth check failed:', e);
-  }
-});
-
-// Keyboard input
+// ignore keypresses when typing in inputs/buttons
 document.addEventListener('keydown', e => {
-  const key = e.key.toUpperCase();
-  if (key === 'ENTER') return handleKey('ENTER');
-  if (key === 'BACKSPACE') return handleKey('BACK');
-  if (/^[A-Z]$/.test(key)) handleKey(key);
+  const a = document.activeElement;
+  if (a.tagName === 'INPUT' || a.tagName === 'BUTTON') return;
+  if (e.key === 'Enter')      handleKey('ENTER');
+  else if (e.key === 'Backspace') handleKey('BACK');
+  else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
 });
 
-// Manual translation UI
-transBtn.onclick = () => {
-  const name = langInput.value.trim().toLowerCase();
-  const code = langMap[name];
+
+//  TRANSLATION
+const langMap = {
+  german:'de', spanish:'es', french:'fr',
+  italian:'it', portuguese:'pt', dutch:'nl', hindi:'hi'
+};
+
+const transBtn  = document.getElementById('translate-btn');
+const langInput = document.getElementById('lang-input');
+const transRes  = document.getElementById('translation-result');
+
+transBtn.addEventListener('click', () => {
+  const lang = langInput.value.trim().toLowerCase();
+  const code = langMap[lang];
   if (!code) {
-    transRes.textContent = 'Language not supported.';
+    transRes.textContent = 'Not supported';
     return;
   }
   fetch(`https://api.mymemory.translated.net/get?q=${solution}&langpair=en|${code}`)
     .then(r => r.json())
-    .then(d => {
-      transRes.textContent = 'Translation: ' + d.responseData.translatedText;
-    })
-    .catch(() => {
-      transRes.textContent = 'Translation error.';
-    });
-};
-
-// Reset button (built-in init)
-resetBtn.onclick = () => {
-  init();
-  resetBtn.blur();
-};
-
-// Advanced 'translateWord' button
-document.getElementById('translate-btn').addEventListener('click', async () => {
-  const langVal = langInput.value.trim();
-  const word    = answerEl.textContent.trim();
-  if (!langVal || !word) return;
-  try {
-    const translated = await translateWord(word, langVal);
-    transRes.innerHTML = `Meaning-based translation in <b>${langVal}</b>: <b>${translated}</b>`;
-  } catch (err) {
-    console.error('Translation failed:', err);
-    transRes.textContent = 'Translation failed.';
-  }
+    .then(d => transRes.textContent = d.responseData.translatedText)
+    .catch(() => transRes.textContent = 'Error');
 });
 
-// Show answer & translation UI on load if needed
-answerEl.textContent = solution;
-transUI.classList.remove('hidden');
 
-// Extra reset cleanup
-document.getElementById('reset-btn').addEventListener('click', () => {
-  transUI.classList.add('hidden');
-  transRes.textContent = '';
-});
-
-// =======================
-// Startup
-// =======================
-
-// Initial game start
-init();
+//  INITIALIZE
+applyMode();
+initGame();

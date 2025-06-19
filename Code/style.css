@@ -1,107 +1,138 @@
 :root {
   --bg: #121212;
+  --panel: #1e1e1e;
   --board-bg: #1e1e1e;
-  --tile-default: #2a2a2a;
-  --tile-border: #333;
+  --tile: #2a2a2a;
+  --border: #333;
   --text: #e0e0e0;
-  --accent-correct: #6AAA64;
-  --accent-present: #C9B458;
-  --accent-absent:  #787C7E;
+  --correct: #6AAA64;
+  --present: #C9B458;
+  --absent:  #787C7E;
   --key-bg: #1e1e1e;
   --key-border: #333;
   --key-hover: #333;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* reset box */
+* { box-sizing: border-box; margin:0; padding:0 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI',sans-serif;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   align-items: center;
   padding: 1rem;
 }
 
-.top-bar {
+/* LOGIN CARD */
+.auth-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: var(--panel);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.7);
   width: 100%;
   max-width: 400px;
-  display: flex;
-  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
-.mode-link,
-#reset-btn {
+.auth-input {
+  flex: 1 1 100px;
   background: var(--key-bg);
   border: 1px solid var(--key-border);
+  border-radius: 4px;
+  padding: 0.5rem;
   color: var(--text);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background .2s;
 }
-.mode-link:hover,
-#reset-btn:hover {
+
+.auth-btn {
+  background: var(--tile);
+  border: 1px solid var(--key-border);
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-btn:hover {
   background: var(--key-hover);
 }
 
-h1 {
-  margin-bottom: 1rem;
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
+/* CONTROLS + TITLE */
+.controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 0.5rem;
+}
+.controls h1 {
+  justify-self: center;
+  margin: 0;
 }
 
+.control-btn {
+  background: var(--tile);
+  border: 1px solid var(--key-border);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-family: system-ui, sans-serif;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.control-btn:hover {
+  background: var(--key-hover);
+}
+
+
+
+/* STREAK */
+.streak {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* BOARD */
 #board {
-  --gap: 6px;
   display: grid;
-  grid-template-columns: repeat(var(--cols), 1fr);
-  gap: var(--gap);
+  grid-template-columns: repeat(var(--cols), 66px);
+  gap: 6px;
   background: var(--board-bg);
-  padding: var(--gap);
+  padding: 6px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.7);
-  width: min(90vw, calc(var(--cols) * 60px + var(--gap) * (var(--cols) + 1)));
   margin-bottom: 1rem;
 }
 
 .tile {
-  background: var(--tile-default);
-  border: 2px solid var(--tile-border);
-  aspect-ratio: 1;
+  width: 66px;
+  height: 66px;
+  background: var(--tile);
+  border: 2px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: 1.75rem;
   font-weight: bold;
-  text-transform: uppercase;
+  color: var(--text);
   border-radius: 6px;
-  transition: background .2s, border-color .2s;
+  text-transform: uppercase;
 }
 
-.correct {
-  background: var(--accent-correct);
-  border-color: var(--accent-correct);
-  color: #fff;
-}
-.present {
-  background: var(--accent-present);
-  border-color: var(--accent-present);
-  color: #fff;
-}
-.absent {
-  background: var(--accent-absent);
-  border-color: var(--accent-absent);
-  color: #fff;
-}
+.correct { background: var(--correct); border-color: var(--correct); color: #fff }
+.present { background: var(--present); border-color: var(--present); color: #fff }
+.absent  { background: var(--absent);  border-color: var(--absent);  color: #fff }
 
+/* KEYBOARD */
 #keyboard {
   width: 100%;
   max-width: 400px;
@@ -110,84 +141,77 @@ h1 {
 
 .keyboard-row {
   display: flex;
-  justify-content: center;
   gap: 6px;
+  justify-content: center;
   margin: 4px 0;
 }
 
 .key {
   flex: 1;
   max-width: 50px;
-  background: var(--key-bg);
+  background: var(--key-init);
   border: 1px solid var(--key-border);
   border-radius: 6px;
   padding: 0.6rem 0;
-  text-align: center;
   font-weight: 600;
-  user-select: none;
+  color: var(--text);
+  text-align: center;
   cursor: pointer;
-  transition: background .2s;
+  transition: background 0.2s;
 }
+
 .key:hover {
   background: var(--key-hover);
 }
-.key.correct { background: var(--accent-correct); border-color: var(--accent-correct); color: #fff; }
-.key.present { background: var(--accent-present); border-color: var(--accent-present); color: #fff; }
-.key.absent  { background: var(--accent-absent);  border-color: var(--accent-absent);  color: #fff; }
 
+/* mirror tile colors on keys */
+.key.correct { background: var(--correct); border-color: var(--correct); color:#fff; }
+.key.present { background: var(--present); border-color: var(--present); color:#fff; }
+.key.absent  { background: var(--absent);  border-color: var(--absent);  color:#fff; }
+
+/* FEEDBACK */
 #answer {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-size: 1.1rem;
   margin-bottom: 0.5rem;
 }
 
+.message {
+  height: 1.5rem;
+  color: #f66;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+/* TRANSLATION UI */
 #translation-ui {
   display: flex;
+  gap: 0.5rem;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
   flex-wrap: wrap;
+  margin-bottom: 0.5rem;
 }
-#translation-ui.hidden { display: none; }
 
-#translation-ui input {
-  padding: 0.4rem 0.6rem;
-  border-radius: 6px;
-  border: 1px solid var(--key-border);
-  background: var(--key-bg);
-  color: var(--text);
-  width: 140px;
-}
+#translation-ui.hidden { display: none }
+
+#translation-ui input,
 #translation-ui button {
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  border: 1px solid var(--key-border);
   background: var(--key-bg);
+  border: 1px solid var(--key-border);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
   color: var(--text);
   cursor: pointer;
-  transition: background .2s;
+  transition: background 0.2s;
 }
+
+#translation-ui input { width: 140px }
+
 #translation-ui button:hover {
   background: var(--key-hover);
 }
 
 #translation-result {
-  width: 100%;
   text-align: center;
-  margin-top: 0.5rem;
-}
-
-#streak-display {
-  font-weight: 600;
-  align-self: center;
-}
-
-.message {
-  height: 1.5rem;
-  color: red;
-  text-align: center;
-  margin-bottom: 0.5rem;
-  visibility: hidden;
-}
-.message.visible {
-  visibility: visible;
+  margin-bottom: 1rem;
 }
