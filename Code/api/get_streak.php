@@ -5,5 +5,5 @@ if (empty($_SESSION['user_id'])) {
   exit;
 }
 $stmt = $pdo->prepare("SELECT streak FROM users WHERE id=?");
-$stmt->execute([$_SESSION['user_id']]);
+$stmt->execute([$_SESSION['user_id']]); 
 echo json_encode(['streak'=> (int)$stmt->fetchColumn() ]);
