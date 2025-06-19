@@ -62,12 +62,12 @@ function initGame() {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'keyboard-row';
 
-    // ENTER on third row start
+    // ⏎ ENTER at the start of 3rd row
     if (idx === 2) {
       const enter = document.createElement('button');
-      enter.textContent = 'ENTER';
-      enter.className = 'key';
-      enter.onclick = () => handleKey('ENTER');
+      enter.textContent = '⏎';
+      enter.className = 'key key-wide';
+      enter.onclick = e => { handleKey('ENTER'); e.target.blur(); };
       rowDiv.appendChild(enter);
     }
 
@@ -76,16 +76,16 @@ function initGame() {
       const key = document.createElement('button');
       key.textContent = ch;
       key.className = 'key';
-      key.onclick = () => handleKey(ch);
+      key.onclick = e => { handleKey(ch); e.target.blur(); };
       rowDiv.appendChild(key);
     }
 
-    // BACK on third row end
+    // ⌫ BACK at the end of 3rd row
     if (idx === 2) {
       const back = document.createElement('button');
-      back.textContent = 'BACK';
-      back.className = 'key';
-      back.onclick = () => handleKey('BACK');
+      back.textContent = '⌫';
+      back.className = 'key key-wide';
+      back.onclick = e => { handleKey('BACK'); e.target.blur(); };
       rowDiv.appendChild(back);
     }
 
