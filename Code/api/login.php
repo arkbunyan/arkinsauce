@@ -1,12 +1,18 @@
 <?php
-require 'config.php';
+header('Content-Type: application/json');
+require_once __DIR__.'/functions.php';
+
 $data = json_decode(file_get_contents('php://input'), true);
-$stmt = $pdo->prepare("SELECT id,password_hash FROM users WHERE username=?");
-$stmt->execute([$data['username']]);
-$user = $stmt->fetch();
-if ($user && password_verify($data['password'], $user['password_hash'])) {
-  $_SESSION['user_id'] = $user['id'];
-  echo json_encode(['success'=>true]);
+if (empty($data['username']) || empty($data['password'])) {
+    http_response_code(400);
+    exit(json_encode(['error'=>'Missing username or password']));
+}
+
+$userId = verifyUser($data['username'], $data['password']);
+if ($userId) {
+    $_SESSION['user_id'] = $userId;
+    echo json_encode(['success'=>true]);
 } else {
-  echo json_encode(['error'=>'Invalid login']);
+    http_response_code(401);
+    echo json_encode(['error'=>'Invalid credentials']);
 }

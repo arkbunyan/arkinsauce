@@ -1,14 +1,18 @@
 <?php
-require 'config.php';
+header('Content-Type: application/json');
+require_once __DIR__.'/functions.php';
+
 $data = json_decode(file_get_contents('php://input'), true);
 if (empty($data['username']) || empty($data['password'])) {
-  echo json_encode(['error'=>'Missing username or password']);
-  exit;
+    http_response_code(400);
+    exit(json_encode(['error'=>'Missing username or password']));
 }
-$hash = password_hash($data['password'], PASSWORD_DEFAULT);
-$stmt = $pdo->prepare("INSERT INTO users (username,password_hash) VALUES (?,?)");
-if ($stmt->execute([$data['username'], $hash])) {
-  echo json_encode(['success'=>true]);
-} else {
-  echo json_encode(['error'=>'Username already taken']);
+
+try {
+    $newId = createUser($data['username'], $data['password']);
+    $_SESSION['user_id'] = $newId;
+    echo json_encode(['success'=>true]);
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode(['error'=>$e->getMessage()]);
 }

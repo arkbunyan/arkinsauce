@@ -1,24 +1,22 @@
 <?php
-session_set_cookie_params([
-  'path' => '/',       // root of domain
-  'httponly' => true,  // good practice
-  
-]);
-
+// config.php
 session_start();
-$DB_HOST = 'localhost';
-$DB_NAME = 'wordle_clone';
-$DB_USER = 'wordle_user'; 
-$DB_PASS = '!acs6sg~UCHC';
+
+$host     = 'localhost';
+$dbname   = 'your_database';
+$user     = 'your_db_user';
+$pass     = 'your_db_pass';
+$charset  = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
+$options = [
+  PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+  PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
 
 try {
-  $pdo = new PDO(
-    "mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8",
-    $DB_USER,
-    $DB_PASS,
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-  );
-} catch (Exception $e) {
+  $db = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
   http_response_code(500);
-  exit('Database connection error');
+  exit(json_encode(['error'=>'Database connection failed']));
 }
