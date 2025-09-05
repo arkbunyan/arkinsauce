@@ -1,8 +1,7 @@
 <?php
-// functions.php
 require_once __DIR__.'/config.php';
 
-/** Helpers **/
+/** helps **/
 
 function getUserId(): ?int {
     return $_SESSION['user_id'] ?? null;
