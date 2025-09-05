@@ -1,4 +1,4 @@
-//  MODE TOGGLE 
+//  toggle mode
 let isFourdle = true;   // true = 4-letter mode, false = 3-letter mode
 let cols, wordList, guessList;
 
@@ -29,7 +29,7 @@ function applyMode() {
 }
 
 
-//  GAME SETUP 
+//  game setup
 const board     = document.getElementById('board');
 const keyboard  = document.getElementById('keyboard');
 const answerEl  = document.getElementById('answer');
@@ -62,7 +62,7 @@ function initGame() {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'keyboard-row';
 
-    // ⏎ ENTER at the start of 3rd row
+    // ⏎ at the start of 3rd row
     if (idx === 2) {
       const enter = document.createElement('button');
       enter.textContent = '⏎';
@@ -105,7 +105,7 @@ resetBtn.addEventListener('click', () => {
 });
 
 
-//  STREAK & AUTH 
+//  streak and auth
 let streakCount = 0;
 
 const userIn    = document.getElementById('user');
@@ -201,7 +201,7 @@ fetch('api/check_auth.php')
   .catch(e => console.error(e));
 
 
-//  INPUT HANDLING ===
+//  input handling
 function handleKey(k) {
   if (gameOver) return;
   if (k === 'ENTER') return handleEnter();
@@ -319,7 +319,7 @@ document.addEventListener('keydown', e => {
 });
 
 
-//  TRANSLATION
+//  translation
 const langMap = {
   german:'de', spanish:'es', french:'fr',
   italian:'it', portuguese:'pt', dutch:'nl', hindi:'hi'
@@ -343,6 +343,6 @@ transBtn.addEventListener('click', () => {
 });
 
 
-//  INITIALIZE
+//  init
 applyMode();
 initGame();

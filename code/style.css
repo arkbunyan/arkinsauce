@@ -26,7 +26,7 @@ body {
   padding: 1rem;
 }
 
-/* AUTH PANEL: no wrap on small screens */
+/* no wrap */
 .auth-container {
   display: flex;
   gap: 0.5rem;
@@ -90,13 +90,11 @@ body {
   background: var(--key-hover);
 }
 
-/* STREAK */
 .streak {
   margin-bottom: 1rem;
   font-weight: 600;
 }
 
-/* BOARD */
 #board {
   display: grid;
   grid-template-columns: repeat(var(--cols),66px);
@@ -107,6 +105,7 @@ body {
   box-shadow: 0 4px 16px rgba(0,0,0,0.7);
   margin-bottom: 1rem;
 }
+
 .tile {
   width: 66px;
   height: 66px;
@@ -125,7 +124,6 @@ body {
 .present { background: var(--present); border-color: var(--present); color:#fff }
 .absent  { background: var(--absent);  border-color: var(--absent);  color:#fff }
 
-/* KEYBOARD */
 #keyboard {
   width: 100%;
   max-width: 400px;
@@ -156,16 +154,16 @@ body {
 .key:hover {
   background: var(--key-hover);
 }
-/* wide keys for Enter/Back */
+/* wide keys for enter/back */
 .key.key-wide {
   flex: 1.5;
 }
-/* feedback coloring */
+/* coloring */
 .key.correct { background: var(--correct); }
 .key.present { background: var(--present); }
 .key.absent  { background: var(--key-absent); }
 
-/* FEEDBACK */
+/* results */
 #answer {
   font-size: 1.1rem;
   margin-bottom: 0;
@@ -178,7 +176,6 @@ body {
   margin-bottom: 0.5rem;
 }
 
-/* TRANSLATION UI */
 #translation-ui {
   display: flex;
   gap: 0.5rem;
@@ -206,7 +203,6 @@ body {
   background: var(--key-hover);
 }
 
-/* TRANSLATION RESULT */
 #translation-result {
   text-align: center;
   margin: 0;

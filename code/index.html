@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LOGIN CARD -->
+  <!-- login -->
   <div id="auth" class="auth-container">
     <input id="user" class="auth-input"  type="text"     placeholder="Username">
     <input id="pass" class="auth-input"  type="password" placeholder="Password">
@@ -20,36 +20,36 @@
     <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
   </div>
 
-  <!-- CONTROLS GRID + TITLE -->
+  <!-- controls and title -->
   <div class="controls">
     <button id="reset-btn" class="control-btn">Reset</button>
     <h1 id="title">Fourdle</h1>
     <button id="mode-btn"  class="control-btn">Triodle</button>
   </div>
 
-  <!-- STREAK -->
+  <!-- streak -->
   <div id="streak-display" class="streak">
     Streak: <span id="streak-count">0</span>
   </div>
 
-  <!-- BOARD -->
+  <!-- board -->
   <div id="board" style="--cols:4;"></div>
 
-  <!-- ON-SCREEN KEYS -->
+  <!-- keyboard -->
   <div id="keyboard"></div>
 
-  <!-- FEEDBACK -->
+  <!-- results -->
   <div id="answer"></div>
   <div id="message" class="message"></div>
 
-  <!-- TRANSLATION UI -->
+  <!-- translation ui -->
   <div id="translation-ui" class="hidden">
     <input id="lang-input" type="text" placeholder="Language">
     <button id="translate-btn">Translate</button>
   </div>
   <div id="translation-result"></div>
 
-  <!-- SCRIPTS -->
+  <!-- scripts -->
   <script src="wordbank.js"></script>
   <script src="game.js"></script>
 </body>
