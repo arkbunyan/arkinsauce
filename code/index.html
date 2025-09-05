@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="manifest" href="icons/site.webmanifest">
+  <title>Fourdle / Triodle</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- LOGIN CARD -->
+  <div id="auth" class="auth-container">
+    <input id="user" class="auth-input"  type="text"     placeholder="Username">
+    <input id="pass" class="auth-input"  type="password" placeholder="Password">
+    <button id="login-btn"  class="auth-btn">Log In</button>
+    <button id="reg-btn"    class="auth-btn">Sign Up</button>
+    <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
+  </div>
+
+  <!-- CONTROLS GRID + TITLE -->
+  <div class="controls">
+    <button id="reset-btn" class="control-btn">Reset</button>
+    <h1 id="title">Fourdle</h1>
+    <button id="mode-btn"  class="control-btn">Triodle</button>
+  </div>
+
+  <!-- STREAK -->
+  <div id="streak-display" class="streak">
+    Streak: <span id="streak-count">0</span>
+  </div>
+
+  <!-- BOARD -->
+  <div id="board" style="--cols:4;"></div>
+
+  <!-- ON-SCREEN KEYS -->
+  <div id="keyboard"></div>
+
+  <!-- FEEDBACK -->
+  <div id="answer"></div>
+  <div id="message" class="message"></div>
+
+  <!-- TRANSLATION UI -->
+  <div id="translation-ui" class="hidden">
+    <input id="lang-input" type="text" placeholder="Language">
+    <button id="translate-btn">Translate</button>
+  </div>
+  <div id="translation-result"></div>
+
+  <!-- SCRIPTS -->
+  <script src="wordbank.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
