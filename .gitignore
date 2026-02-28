@@ -1,0 +1,14 @@
+# junk
+.DS_Store
+__MACOSX/
+
+# secrets
+.env
+*.env
+.app_config.php
+app_config.php
+private/
+
+# logs
+*.log
+tmp/
