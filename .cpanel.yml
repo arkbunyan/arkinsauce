@@ -2,4 +2,9 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/yso2dlxid2pc/public_html/
-    - /bin/rsync -av --delete --exclude='.git/' --exclude='.cpanel.yml' --exclude='.DS_Store' --exclude='schema.sql' --exclude='README*' --exclude='*.zip' --exclude='*.tar.gz' ./ $DEPLOYPATH
+    - /bin/rsync -av --delete \
+        --no-perms --no-owner --no-group \
+        --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
+        --exclude='.git/' --exclude='.cpanel.yml' --exclude='.DS_Store' \
+        --exclude='schema.sql' --exclude='README*' --exclude='*.zip' --exclude='*.tar.gz' \
+        ./ $DEPLOYPATH
