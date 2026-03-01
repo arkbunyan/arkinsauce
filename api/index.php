@@ -1,8 +1,14 @@
 <?php
-/**
- * API Router
- * Handles all API requests and routes them to appropriate handlers
- */
+// Global error handler - always return JSON
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    exit(json_encode(['success' => false, 'error' => 'Internal server error']));
+});
+
+set_exception_handler(function($exception) {
+    http_response_code(500);
+    exit(json_encode(['success' => false, 'error' => 'Internal server error']));
+});
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -21,7 +27,13 @@ require_once __DIR__ . '/functions.php';
 
 // Parse the request URI
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = preg_replace('/^\/api/', '', $path);
+// Remove /api prefix if present, or handle subdirectory case
+if (strpos($path, '/api') !== false) {
+    $path = preg_replace('#^.*?/api#', '', $path);
+} else {
+    // If no /api in path, might already be at the API root
+    $path = preg_replace('#^/api/?#', '', $path);
+}
 $parts = array_filter(explode('/', trim($path, '/')));
 $parts = array_values($parts); // Re-index array
 
@@ -93,9 +105,7 @@ try {
     ]));
 }
 
-/**
- * API Exception Class
- */
+// API Exception Class
 class ApiException extends Exception {
     private int $statusCode;
 
@@ -109,17 +119,13 @@ class ApiException extends Exception {
     }
 }
 
-/**
- * Helper: Get JSON input
- */
+// Get JSON input from request body
 function getJsonInput(): ?array {
     $input = file_get_contents('php://input');
     return $input ? json_decode($input, true) : null;
 }
 
-/**
- * Handler: Check Authentication
- */
+// Check if user is authenticated
 function handleAuthCheck(): void {
     $isLoggedIn = isset($_SESSION['user_id']) && $_SESSION['user_id'];
     
@@ -139,9 +145,7 @@ function handleAuthCheck(): void {
     }
 }
 
-/**
- * Handler: Login
- */
+// Handle login request
 function handleLogin(): void {
     $data = getJsonInput();
     if (!is_array($data)) {
@@ -169,9 +173,7 @@ function handleLogin(): void {
     }
 }
 
-/**
- * Handler: Register
- */
+// Handle registration request
 function handleRegister(): void {
     $data = getJsonInput();
     if (!is_array($data)) {
@@ -206,9 +208,7 @@ function handleRegister(): void {
     }
 }
 
-/**
- * Handler: Logout
- */
+// Handle logout request
 function handleLogout(): void {
     session_unset();
     session_destroy();
@@ -219,9 +219,7 @@ function handleLogout(): void {
     ]);
 }
 
-/**
- * Handler: Streak (GET/POST)
- */
+// Handle streak GET/POST requests
 function handleStreak(string $method): void {
     if ($method === 'GET') {
         requireAuth();
