@@ -42,7 +42,7 @@ class API {
    */
   async checkAuth() {
     try {
-      const data = await this.request('/auth/check');
+      const data = await this.request('/check_auth.php');
       return data.loggedIn === true;
     } catch (error) {
       return false;
@@ -53,7 +53,7 @@ class API {
    * Log in user
    */
   async login(username, password) {
-    return await this.request('/auth/login', {
+    return await this.request('/login.php', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
@@ -63,7 +63,7 @@ class API {
    * Register new user
    */
   async register(username, password) {
-    return await this.request('/auth/register', {
+    return await this.request('/register.php', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     });
@@ -73,7 +73,7 @@ class API {
    * Log out user
    */
   async logout() {
-    await this.request('/auth/logout', { method: 'POST' });
+    await this.request('/logout.php', { method: 'POST' });
   }
 
   /**
@@ -81,7 +81,7 @@ class API {
    */
   async getStreak() {
     try {
-      const data = await this.request('/game/streak', { method: 'GET' });
+      const data = await this.request('/streak.php', { method: 'GET' });
       return data.streak || 0;
     } catch (error) {
       return 0;
@@ -92,7 +92,7 @@ class API {
    * Update user's streak
    */
   async updateStreak(streak) {
-    return await this.request('/game/streak', {
+    return await this.request('/streak.php', {
       method: 'POST',
       body: JSON.stringify({ streak }),
     });
