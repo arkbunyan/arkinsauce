@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Prevent direct access to config and functions files
+    RewriteRule ^(config|functions)\.php$ - [F]
+    
+    # Skip rewriting for actual files and directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    
+    # Route all other requests to index.php
+    RewriteRule ^.*$ index.php [L]
+</IfModule>
+
+# Set proper headers for API responses
+<FilesMatch "\.php$">
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+    Header set X-XSS-Protection "1; mode=block"
+</FilesMatch>

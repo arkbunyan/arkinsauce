@@ -1,20 +1,21 @@
+
 <?php
-// functions.php
+// API Functions and Helpers
 require_once __DIR__.'/config.php';
 
-/** Helpers **/
-
+// Get the current user ID from session
 function getUserId(): ?int {
     return $_SESSION['user_id'] ?? null;
 }
 
+// Require authentication 
 function requireAuth(): void {
-    if (! getUserId()) {
-        http_response_code(401);
-        exit(json_encode(['error'=>'Unauthorized']));
+    if (!getUserId()) {
+        throw new Exception('Unauthorized', 401);
     }
 }
 
+// Find a user by username
 function findUser(string $username): ?array {
     global $db;
     $stmt = $db->prepare("SELECT id, password_hash FROM users WHERE username = ?");
@@ -22,18 +23,24 @@ function findUser(string $username): ?array {
     return $stmt->fetch() ?: null;
 }
 
+// Create a new user with hashed password
 function createUser(string $username, string $password): int {
     global $db;
+    // Check if user already exists
+    if (findUser($username)) {
+        throw new Exception('Username already taken', 400);
+    }
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $db->prepare(
-      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+        "INSERT INTO users (username, password_hash) VALUES (?, ?)"
     );
-    if (! $stmt->execute([$username, $hash])) {
-        throw new Exception('Username already taken');
+    if (!$stmt->execute([$username, $hash])) {
+        throw new Exception('Failed to create user', 500);
     }
     return (int)$db->lastInsertId();
 }
 
+// Verify user credentials. Returns user ID if valid, null otherwise.
 function verifyUser(string $username, string $password): ?int {
     $user = findUser($username);
     if ($user && password_verify($password, $user['password_hash'])) {
@@ -42,15 +49,20 @@ function verifyUser(string $username, string $password): ?int {
     return null;
 }
 
+// Get user's current streak
 function getStreak(int $userId): int {
     global $db;
     $stmt = $db->prepare("SELECT streak FROM users WHERE id = ?");
     $stmt->execute([$userId]);
-    return (int)$stmt->fetchColumn();
+    return (int)($stmt->fetchColumn() ?: 0);
 }
 
+// Update user's streak
 function updateStreak(int $userId, int $streak): void {
     global $db;
-    $stmt = $db->prepare("UPDATE users SET streak = ? WHERE id = ?");
-    $stmt->execute([$streak, $userId]);
+    $stmt = $db->prepare("UPDATE users SET streak = ?, updated_at = NOW() WHERE id = ?");
+    if (!$stmt->execute([$streak, $userId])) {
+        throw new Exception('Failed to update streak', 500);
+    }
 }
+

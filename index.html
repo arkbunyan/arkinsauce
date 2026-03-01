@@ -3,54 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Fourdle / Triodle - A word guessing game">
+  
+  <!-- Favicon & Icons -->
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
   <link rel="manifest" href="icons/site.webmanifest">
+  
   <title>Fourdle / Triodle</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LOGIN CARD -->
-  <div id="auth" class="auth-container">
-    <input id="user" class="auth-input"  type="text"     placeholder="Username">
-    <input id="pass" class="auth-input"  type="password" placeholder="Password">
-    <button id="login-btn"  class="auth-btn">Log In</button>
-    <button id="reg-btn"    class="auth-btn">Sign Up</button>
-    <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="app-title" id="gameTitle">Fourdle</h1>
+      
+      <!-- Controls -->
+      <div class="header-controls">
+        <button class="btn btn--secondary" id="resetBtn" type="button" aria-label="Reset game">
+          Reset
+        </button>
+        <button class="btn btn--secondary" id="modeBtn" type="button" aria-label="Switch game mode">
+          Triodle
+        </button>
+        <button class="btn btn--primary" id="authBtn" type="button" aria-label="Login or Logout">
+          Log In
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="game-container">
+    <!-- Streak Display -->
+    <div class="streak-display" id="streakDisplay" style="display: none;">
+      <span class="streak-label">Streak:</span>
+      <span class="streak-count" id="streakCount">0</span>
+    </div>
+
+    <!-- Game Board -->
+    <section class="game-board" id="gameBoard" aria-label="Game board">
+      <!-- Tiles inserted here dynamically -->
+    </section>
+
+    <!-- Answer & Translation Box -->
+    <section class="result-box" id="resultBox" style="display: none;">
+      <div class="result-content">
+        <p class="result-label" id="resultLabel"></p>
+        <p class="result-answer" id="resultAnswer"></p>
+        <div class="result-translation" id="resultTranslation"></div>
+      </div>
+    </section>
+
+    <!-- Error/Info Message -->
+    <div class="message-box" id="messageBox"></div>
+
+    <!-- Virtual Keyboard -->
+    <section class="keyboard" id="keyboard" aria-label="On-screen keyboard">
+      <!-- Keyboard rows inserted here dynamically -->
+    </section>
+  </main>
+
+  <!-- LOGIN/SIGNUP MODAL -->
+  <div class="modal" id="authModal" aria-hidden="true" aria-labelledby="authModalTitle">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modalCloseBtn" type="button" aria-label="Close modal">
+        ×
+      </button>
+      
+      <h2 class="modal-title" id="authModalTitle">Log In</h2>
+      
+      <form class="auth-form" id="authForm" novalidate>
+        <div class="form-group">
+          <label for="username" class="form-label">Username</label>
+          <input 
+            class="form-input" 
+            id="username" 
+            type="text" 
+            placeholder="Enter username"
+            required
+            autocomplete="username"
+          >
+          <span class="form-error" id="usernameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input 
+            class="form-input" 
+            id="password" 
+            type="password" 
+            placeholder="Enter password"
+            required
+            autocomplete="current-password"
+          >
+          <span class="form-error" id="passwordError"></span>
+        </div>
+
+        <button class="btn btn--primary btn--full" id="authSubmitBtn" type="submit">
+          Log In
+        </button>
+
+        <span class="form-error" id="formError" style="display: block; text-align: center; margin-top: 1rem;"></span>
+      </form>
+
+      <div class="auth-toggle">
+        <span id="authToggleText">Don't have an account?</span>
+        <button class="btn-link" id="authToggleBtn" type="button">
+          Sign Up
+        </button>
+      </div>
+    </div>
   </div>
-
-  <!-- CONTROLS GRID + TITLE -->
-  <div class="controls">
-    <button id="reset-btn" class="control-btn">Reset</button>
-    <h1 id="title">Fourdle</h1>
-    <button id="mode-btn"  class="control-btn">Triodle</button>
-  </div>
-
-  <!-- STREAK -->
-  <div id="streak-display" class="streak">
-    Streak: <span id="streak-count">0</span>
-  </div>
-
-  <!-- BOARD -->
-  <div id="board" style="--cols:4;"></div>
-
-  <!-- ON-SCREEN KEYS -->
-  <div id="keyboard"></div>
-
-  <!-- FEEDBACK -->
-  <div id="answer"></div>
-  <div id="message" class="message"></div>
-
-  <!-- TRANSLATION UI -->
-  <div id="translation-ui" class="hidden">
-    <input id="lang-input" type="text" placeholder="Language">
-    <button id="translate-btn">Translate</button>
-  </div>
-  <div id="translation-result"></div>
 
   <!-- SCRIPTS -->
-  <script src="wordbank.js"></script>
-  <script src="game.js"></script>
+  <script src="js/wordbank.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
