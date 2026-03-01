@@ -1,10 +1,14 @@
 <?php
+// detect if local or production
+$isLocal = ($_SERVER['HTTP_HOST'] ?? '');
+$isLocal = strpos($isLocal, 'localhost') !== false || strpos($isLocal, '127.0.0.1') !== false;
+
 // secure cookie before starting the session
 session_set_cookie_params([
-  'lifetime' => 60*60*24*30,  // 30 days
+  'lifetime' => 60*60*24*30,
   'path'     => '/',
-  'domain'   => 'arkinsauce.com',
-  'secure'   => true,
+  'domain'   => $isLocal ? '' : 'arkinsauce.com',
+  'secure'   => !$isLocal,
   'httponly' => true,
   'samesite' => 'Lax',
 ]);
