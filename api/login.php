@@ -1,11 +1,30 @@
 <?php
-declare(strict_types=1);
-
 require_once __DIR__ . '/bootstrap.php';
 
-use App\Auth;
-use App\Http;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  bad_request('POST required');
+}
 
-$body = Http::jsonBody(['username', 'password']);
-Auth::login((string)$body['username'], (string)$body['password']);
-Http::ok(['success' => true]);
+$body = json_body();
+$username = normalize_username((string)($body['username'] ?? ''));
+$password = (string)($body['password'] ?? '');
+
+if ($username === '' || $password === '') {
+  bad_request('Missing username or password');
+}
+
+$stmt = $db->prepare('SELECT id, username, password_hash FROM users WHERE username = ? LIMIT 1');
+$stmt->execute([$username]);
+$user = $stmt->fetch();
+
+if (!$user || !password_verify($password, $user['password_hash'])) {
+  unauthorized('Invalid username or password');
+}
+
+// Ensure streak row exists
+$stmt2 = $db->prepare('INSERT IGNORE INTO streaks (user_id, streak) VALUES (?, 0)');
+$stmt2->execute([(int)$user['id']]);
+
+$_SESSION['user_id'] = (int)$user['id'];
+
+ok(['success' => true, 'username' => $user['username']]);

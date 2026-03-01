@@ -1,11 +1,13 @@
 <?php
-declare(strict_types=1);
-
 require_once __DIR__ . '/bootstrap.php';
 
-use App\Auth;
-use App\Http;
+$uid = current_user_id();
+if ($uid === null) {
+  ok(['loggedIn' => false]);
+}
 
-Http::ok([
-    'loggedIn' => (bool) Auth::userId(),
-]);
+$stmt = $db->prepare('SELECT username FROM users WHERE id = ? LIMIT 1');
+$stmt->execute([$uid]);
+$row = $stmt->fetch();
+
+ok(['loggedIn' => true, 'username' => $row ? $row['username'] : null]);

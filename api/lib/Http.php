@@ -1,67 +1,31 @@
 <?php
 declare(strict_types=1);
 
-namespace App;
+function json_body(): array {
+  $raw = file_get_contents('php://input');
+  if ($raw === false || trim($raw) === '') return [];
+  $data = json_decode($raw, true);
+  return is_array($data) ? $data : [];
+}
 
-final class Http
-{
-    public static function initSession(): void
-    {
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            return;
-        }
+function respond(int $status, array $payload): void {
+  http_response_code($status);
+  echo json_encode($payload);
+  exit;
+}
 
-        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
+function ok(array $payload = []): void {
+  respond(200, $payload);
+}
 
-        ini_set('session.use_strict_mode', '1');
-        ini_set('session.use_only_cookies', '1');
+function bad_request(string $message): void {
+  respond(400, ['success' => false, 'error' => $message]);
+}
 
-        session_name('arkinsauce_session');
+function unauthorized(string $message = 'Unauthorized'): void {
+  respond(401, ['success' => false, 'error' => $message]);
+}
 
-        session_set_cookie_params([
-            'lifetime' => 60 * 60 * 24 * 30,
-            'path' => '/',
-            'secure' => $isHttps,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-
-        session_start();
-    }
-
-    /** @return array<string, mixed> */
-    public static function jsonBody(array $requiredKeys = []): array
-    {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw ?: '', true);
-
-        if (!is_array($data)) {
-            self::error('Invalid JSON', 400);
-        }
-
-        foreach ($requiredKeys as $k) {
-            if (!array_key_exists($k, $data) || $data[$k] === null || $data[$k] === '') {
-                self::error('Missing required field: ' . $k, 400);
-            }
-        }
-
-        /** @var array<string, mixed> $data */
-        return $data;
-    }
-
-    /** @param array<string, mixed> $data */
-    public static function ok(array $data = [], int $status = 200): void
-    {
-        http_response_code($status);
-        echo json_encode($data);
-        exit;
-    }
-
-    public static function error(string $message, int $status = 400): void
-    {
-        http_response_code($status);
-        echo json_encode(['error' => $message]);
-        exit;
-    }
+function server_error(string $message = 'Server error'): void {
+  respond(500, ['success' => false, 'error' => $message]);
 }

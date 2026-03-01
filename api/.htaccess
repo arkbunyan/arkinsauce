@@ -1,7 +1,0 @@
-Options -Indexes
-
-RewriteEngine On
-
-# Block direct web access to internal files
-RewriteRule ^lib/ - [F,L]
-RewriteRule ^bootstrap\.php$ - [F,L]

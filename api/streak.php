@@ -1,32 +1,31 @@
 <?php
-declare(strict_types=1);
-
 require_once __DIR__ . '/bootstrap.php';
 
-use App\Auth;
-use App\Http;
-use App\Streak;
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+  $uid = current_user_id();
+  if ($uid === null) {
+    ok(['streak' => 0]);
+  }
 
-$userId = Auth::requireAuth();
+  $stmt = $db->prepare('SELECT streak FROM streaks WHERE user_id = ? LIMIT 1');
+  $stmt->execute([$uid]);
+  $row = $stmt->fetch();
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-
-if ($method === 'GET') {
-    Http::ok(['streak' => Streak::get($userId)]);
+  ok(['streak' => $row ? (int)$row['streak'] : 0]);
 }
 
-if ($method === 'POST') {
-    $body = Http::jsonBody(['streak']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $uid = require_login();
 
-    $raw = $body['streak'];
-    if (!is_int($raw) && !is_numeric($raw)) {
-        Http::error('Invalid streak', 400);
-    }
+  $body = json_body();
+  $streak = (int)($body['streak'] ?? 0);
+  if ($streak < 0) $streak = 0;
+  if ($streak > 9999) $streak = 9999;
 
-    Streak::set($userId, (int)$raw);
-    Http::ok(['success' => true]);
+  $stmt = $db->prepare('INSERT INTO streaks (user_id, streak) VALUES (?, ?) ON DUPLICATE KEY UPDATE streak = VALUES(streak)');
+  $stmt->execute([$uid, $streak]);
+
+  ok(['success' => true, 'streak' => $streak]);
 }
 
-http_response_code(405);
-header('Allow: GET, POST');
-Http::ok(['error' => 'Method not allowed'], 405);
+bad_request('Unsupported method');
