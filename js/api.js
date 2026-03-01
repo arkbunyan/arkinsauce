@@ -5,26 +5,47 @@
 
 class API {
   constructor() {
-    this.baseURL = '/api';
-    this.headers = {
-      'Content-Type': 'application/json',
-    };
+    // Use a relative base path so the app works whether it's hosted at the
+    // domain root (/) or inside a subdirectory (e.g. /arkinsauce/).
+    this.baseURL = 'api';
   }
 
   /**
    * Generic fetch wrapper with error handling
    */
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
+    const cleanEndpoint = String(endpoint || '').replace(/^\/+/, '');
+    const url = `${this.baseURL}/${cleanEndpoint}`;
+
     const config = {
       credentials: 'same-origin',
-      headers: this.headers,
       ...options,
     };
 
+    // Only set JSON headers when we're actually sending a JSON body.
+    // (Some servers/middleware behave oddly when GET requests include
+    // Content-Type: application/json.)
+    if (config.body != null) {
+      config.headers = {
+        ...(config.headers || {}),
+        'Content-Type': 'application/json',
+      };
+    }
+
     try {
       const response = await fetch(url, config);
-      const result = await response.json();
+
+      const text = await response.text();
+      if (!text || !text.trim()) {
+        throw new Error(`Empty response from server (HTTP ${response.status})`);
+      }
+
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (_) {
+        throw new Error(`Server returned invalid JSON (HTTP ${response.status})`);
+      }
 
       if (!response.ok || (result.error)) {
         throw new Error(result.error || 'An error occurred');
@@ -43,7 +64,7 @@ class API {
   async checkAuth() {
     try {
       const data = await this.request('/check_auth.php');
-      return data.loggedIn === true;
+      return Boolean(data.loggedIn);
     } catch (error) {
       return false;
     }
