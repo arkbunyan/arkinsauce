@@ -1,14 +1,13 @@
-
 <?php
-// API Functions and Helpers
+// functions.php
 require_once __DIR__.'/config.php';
 
-// Get the current user ID from session
+/** Helpers **/
+
 function getUserId(): ?int {
     return $_SESSION['user_id'] ?? null;
 }
 
-// Require authentication 
 function requireAuth(): void {
     if (! getUserId()) {
         http_response_code(401);
@@ -16,7 +15,6 @@ function requireAuth(): void {
     }
 }
 
-// Find a user by username
 function findUser(string $username): ?array {
     global $db;
     $stmt = $db->prepare("SELECT id, password_hash FROM users WHERE username = ?");
@@ -24,7 +22,6 @@ function findUser(string $username): ?array {
     return $stmt->fetch() ?: null;
 }
 
-// Create a new user with hashed password
 function createUser(string $username, string $password): int {
     global $db;
     $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -37,7 +34,6 @@ function createUser(string $username, string $password): int {
     return (int)$db->lastInsertId();
 }
 
-// Verify user credentials. Returns user ID if valid, null otherwise.
 function verifyUser(string $username, string $password): ?int {
     $user = findUser($username);
     if ($user && password_verify($password, $user['password_hash'])) {
@@ -46,7 +42,6 @@ function verifyUser(string $username, string $password): ?int {
     return null;
 }
 
-// Get user's current streak
 function getStreak(int $userId): int {
     global $db;
     $stmt = $db->prepare("SELECT streak FROM users WHERE id = ?");
@@ -54,7 +49,6 @@ function getStreak(int $userId): int {
     return (int)$stmt->fetchColumn();
 }
 
-// Update user's streak
 function updateStreak(int $userId, int $streak): void {
     global $db;
     $stmt = $db->prepare("UPDATE users SET streak = ? WHERE id = ?");

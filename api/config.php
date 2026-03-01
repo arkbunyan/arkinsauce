@@ -10,7 +10,12 @@ session_set_cookie_params([
 ]);
 session_start();
 
-require_once '/home/yso2dlxid2pc/.app_config.php';
+// check cPanel path first, fallback to local
+if (file_exists('/home/yso2dlxid2pc/.app_config.php')) {
+  require_once '/home/yso2dlxid2pc/.app_config.php';
+} else {
+  require_once __DIR__ . '/.app_config.php';
+}
 
 $dsn = "mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4";
 $options = [
