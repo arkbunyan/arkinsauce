@@ -144,7 +144,9 @@ function handleAuthCheck(): void {
  */
 function handleLogin(): void {
     $data = getJsonInput();
-    
+    if (!is_array($data)) {
+        throw new ApiException('Invalid or missing JSON input', 400);
+    }
     if (empty($data['username']) || empty($data['password'])) {
         throw new ApiException('Username and password required', 400);
     }
@@ -172,7 +174,9 @@ function handleLogin(): void {
  */
 function handleRegister(): void {
     $data = getJsonInput();
-    
+    if (!is_array($data)) {
+        throw new ApiException('Invalid or missing JSON input', 400);
+    }
     if (empty($data['username']) || empty($data['password'])) {
         throw new ApiException('Username and password required', 400);
     }
