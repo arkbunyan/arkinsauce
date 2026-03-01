@@ -1,7 +1,10 @@
 <?php
-header('Content-Type: application/json');
-require_once __DIR__.'/config.php';
+declare(strict_types=1);
 
-session_unset();
-session_destroy();
-echo json_encode(['success'=>true]);
+require_once __DIR__ . '/bootstrap.php';
+
+use App\Auth;
+use App\Http;
+
+Auth::logout();
+Http::ok(['success' => true]);

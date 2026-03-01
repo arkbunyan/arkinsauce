@@ -11,16 +11,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- TOP BAR -->
-  <div class="topbar" role="banner">
-    <div class="topbar-spacer"></div>
-    <h1 id="title" class="topbar-title">Fourdle</h1>
-    <div class="topbar-actions" aria-label="Game actions">
-      <button id="reset-btn" class="control-btn">Reset</button>
-      <button id="mode-btn" class="control-btn">Triodle</button>
-      <button id="account-btn" class="control-btn">Account</button>
+  <!-- TOP BAR: title centered, actions pinned top-right -->
+  <header class="topbar" role="banner">
+    <div class="topbar-inner">
+      <h1 id="title" class="topbar-title">Fourdle</h1>
+      <nav class="topbar-actions" aria-label="Game actions">
+        <button id="reset-btn" class="control-btn">Reset</button>
+        <button id="mode-btn" class="control-btn">Triodle</button>
+        <button id="account-btn" class="control-btn">Account</button>
+      </nav>
     </div>
-  </div>
+  </header>
 
   <!-- STREAK -->
   <div id="streak-display" class="streak">
@@ -28,27 +29,25 @@
   </div>
 
   <!-- BOARD -->
-  <div id="board" style="--cols:4;"></div>
-
-  <!-- FEEDBACK (used for "Not in list" etc.) -->
-  <div id="message" class="message"></div>
+  <main class="game" role="main">
+    <div id="board" style="--cols:4;"></div>
+    <div id="message" class="message" aria-live="polite"></div>
+    <div id="keyboard"></div>
+  </main>
 
   <!-- RESULTS (only shown when the game ends) -->
-  <div id="results-panel" class="results hidden" aria-live="polite">
+  <section id="results-panel" class="results hidden" aria-live="polite">
     <div class="results-row">
       <div class="results-label">Answer</div>
       <div id="answer" class="results-answer"></div>
     </div>
 
     <div id="translation-ui" class="translation">
-      <input id="lang-input" type="text" placeholder="Language">
-      <button id="translate-btn">Translate</button>
+      <input id="lang-input" type="text" placeholder="Language" autocomplete="off">
+      <button id="translate-btn" type="button">Translate</button>
     </div>
     <div id="translation-result" class="translation-result"></div>
-  </div>
-
-  <!-- ON-SCREEN KEYS -->
-  <div id="keyboard"></div>
+  </section>
 
   <!-- ACCOUNT MODAL -->
   <div id="account-modal" class="modal hidden" aria-hidden="true">
@@ -61,14 +60,13 @@
       <div id="auth" class="auth-container auth-modal">
         <input id="user" class="auth-input" type="text" placeholder="Username" autocomplete="username">
         <input id="pass" class="auth-input" type="password" placeholder="Password" autocomplete="current-password">
-        <button id="login-btn" class="auth-btn">Log In</button>
-        <button id="reg-btn" class="auth-btn">Sign Up</button>
-        <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
+        <button id="login-btn" class="auth-btn" type="button">Log In</button>
+        <button id="reg-btn" class="auth-btn" type="button">Sign Up</button>
+        <button id="logout-btn" class="auth-btn" type="button" style="display:none">Log Out</button>
       </div>
     </div>
   </div>
 
-  <!-- SCRIPTS -->
   <script src="wordbank.js"></script>
   <script src="game.js"></script>
 </body>

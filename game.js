@@ -40,6 +40,33 @@ const rows      = 7;
 
 let solution, row, col, gameOver;
 
+function setResultsOffset() {
+  if (!document.body.classList.contains('show-results')) return;
+  const rect = resultsEl.getBoundingClientRect();
+  // Add a little breathing room so the keyboard never touches the panel.
+  const px = Math.ceil(rect.height) + 16;
+  document.documentElement.style.setProperty('--results-offset', `${px}px`);
+}
+
+function hideResults() {
+  resultsEl.classList.add('hidden');
+  document.body.classList.remove('show-results');
+  document.documentElement.style.setProperty('--results-offset', '0px');
+}
+
+function showResults() {
+  resultsEl.classList.remove('hidden');
+  document.body.classList.add('show-results');
+  // Wait a tick so layout is correct before measuring height.
+  requestAnimationFrame(setResultsOffset);
+}
+
+window.addEventListener('resize', () => {
+  if (document.body.classList.contains('show-results')) {
+    setResultsOffset();
+  }
+});
+
 function initGame() {
   // pick a random solution
   solution = wordList[
@@ -96,7 +123,7 @@ function initGame() {
   // hide answer and messages
   answerEl.textContent = '';
   messageEl.textContent = '';
-  resultsEl.classList.add('hidden');
+  hideResults();
   document.getElementById('translation-result').textContent = '';
   document.getElementById('lang-input').value = '';
 }
@@ -333,7 +360,7 @@ function handleEnter() {
     onWin();
     gameOver = true;
     answerEl.textContent = solution;
-    resultsEl.classList.remove('hidden');
+    showResults();
     return;
   }
 
@@ -346,7 +373,7 @@ function handleEnter() {
     updateStreak();
     gameOver = true;
     answerEl.textContent = solution;
-    resultsEl.classList.remove('hidden');
+    showResults();
   }
 }
 

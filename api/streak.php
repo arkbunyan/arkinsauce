@@ -1,26 +1,32 @@
 <?php
-header('Content-Type: application/json');
-require_once __DIR__.'/functions.php';
+declare(strict_types=1);
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    requireAuth();
-    $current = getStreak(getUserId());
-    echo json_encode(['streak' => $current]);
+require_once __DIR__ . '/bootstrap.php';
 
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    requireAuth();
-    $data = json_decode(file_get_contents('php://input'), true);
+use App\Auth;
+use App\Http;
+use App\Streak;
 
-    if (! isset($data['streak']) || ! is_int($data['streak'])) {
-        http_response_code(400);
-        exit(json_encode(['error'=>'Invalid streak']));
+$userId = Auth::requireAuth();
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+if ($method === 'GET') {
+    Http::ok(['streak' => Streak::get($userId)]);
+}
+
+if ($method === 'POST') {
+    $body = Http::jsonBody(['streak']);
+
+    $raw = $body['streak'];
+    if (!is_int($raw) && !is_numeric($raw)) {
+        Http::error('Invalid streak', 400);
     }
 
-    updateStreak(getUserId(), $data['streak']);
-    echo json_encode(['success'=>true]);
-
-} else {
-    http_response_code(405);
-    header('Allow: GET, POST');
-    echo json_encode(['error'=>'Method not allowed']);
+    Streak::set($userId, (int)$raw);
+    Http::ok(['success' => true]);
 }
+
+http_response_code(405);
+header('Allow: GET, POST');
+Http::ok(['error' => 'Method not allowed'], 405);

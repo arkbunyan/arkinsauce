@@ -1,7 +1,11 @@
 <?php
-header('Content-Type: application/json');
-require_once __DIR__ . '/config.php';
+declare(strict_types=1);
 
-echo json_encode([
-  'loggedIn' => isset($_SESSION['user_id']) && $_SESSION['user_id']
+require_once __DIR__ . '/bootstrap.php';
+
+use App\Auth;
+use App\Http;
+
+Http::ok([
+    'loggedIn' => (bool) Auth::userId(),
 ]);
