@@ -34,6 +34,7 @@ const board     = document.getElementById('board');
 const keyboard  = document.getElementById('keyboard');
 const answerEl  = document.getElementById('answer');
 const messageEl = document.getElementById('message');
+const resultsEl = document.getElementById('results-panel');
 const resetBtn  = document.getElementById('reset-btn');
 const rows      = 7;
 
@@ -95,8 +96,9 @@ function initGame() {
   // hide answer and messages
   answerEl.textContent = '';
   messageEl.textContent = '';
-  document.getElementById('translation-ui').classList.add('hidden');
+  resultsEl.classList.add('hidden');
   document.getElementById('translation-result').textContent = '';
+  document.getElementById('lang-input').value = '';
 }
 
 resetBtn.addEventListener('click', () => {
@@ -148,6 +150,44 @@ function toggleAuth(loggedIn) {
   logoutBtn.style.display = loggedIn ? '' : 'none';
 }
 
+// Account modal
+const accountBtn   = document.getElementById('account-btn');
+const accountModal = document.getElementById('account-modal');
+const accountClose = document.getElementById('account-close');
+
+function openAccountModal() {
+  accountModal.classList.remove('hidden');
+  accountModal.setAttribute('aria-hidden', 'false');
+  // focus the first input for fast login
+  setTimeout(() => userIn.focus(), 0);
+}
+
+function closeAccountModal() {
+  accountModal.classList.add('hidden');
+  accountModal.setAttribute('aria-hidden', 'true');
+  accountBtn.blur();
+}
+
+accountBtn.addEventListener('click', () => {
+  openAccountModal();
+});
+
+accountClose.addEventListener('click', () => {
+  closeAccountModal();
+});
+
+accountModal.addEventListener('click', (e) => {
+  if (e.target && e.target.dataset && e.target.dataset.close === 'true') {
+    closeAccountModal();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !accountModal.classList.contains('hidden')) {
+    closeAccountModal();
+  }
+});
+
 loginBtn.addEventListener('click', async () => {
   const res = await fetch('api/login.php', {
     method:'POST',
@@ -161,6 +201,7 @@ loginBtn.addEventListener('click', async () => {
   if (data.success) {
     toggleAuth(true);
     fetchStreak();
+    closeAccountModal();
   } else {
     alert(data.error);
   }
@@ -179,6 +220,7 @@ regBtn.addEventListener('click', async () => {
   if (data.success) {
     toggleAuth(true);
     fetchStreak();
+    closeAccountModal();
   } else {
     alert(data.error);
   }
@@ -189,6 +231,7 @@ logoutBtn.addEventListener('click', async () => {
   toggleAuth(false);
   streakCount = 0;
   streakEl.textContent = '0';
+  closeAccountModal();
 });
 
 // check session on load
@@ -290,8 +333,7 @@ function handleEnter() {
     onWin();
     gameOver = true;
     answerEl.textContent = solution;
-    document.getElementById('translation-ui')
-            .classList.remove('hidden');
+    resultsEl.classList.remove('hidden');
     return;
   }
 
@@ -304,8 +346,7 @@ function handleEnter() {
     updateStreak();
     gameOver = true;
     answerEl.textContent = solution;
-    document.getElementById('translation-ui')
-            .classList.remove('hidden');
+    resultsEl.classList.remove('hidden');
   }
 }
 

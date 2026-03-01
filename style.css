@@ -11,6 +11,13 @@
   --key-default: #818384;
   --key-absent:  #3A3A3C;
   --key-hover: #565758;
+
+  /* responsive sizing */
+  --tile-size: clamp(54px, 7vh, 66px);
+  --tile-font: clamp(1.35rem, 3vh, 1.75rem);
+  --key-height: clamp(44px, 5.2vh, 56px);
+  --key-font: clamp(14px, 2.1vh, 18px);
+  --panel-w: min(420px, calc(100vw - 2rem));
 }
 
 /* reset */
@@ -23,22 +30,71 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem;
+  min-height: 100vh;
+  padding: 1rem 1rem 2rem;
 }
 
-/* AUTH PANEL: no wrap on small screens */
-.auth-container {
+/* TOP BAR */
+.topbar {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+/* Title stays perfectly centered over the board */
+.topbar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: clamp(1.6rem, 4.5vw, 2.5rem);
+  letter-spacing: 0.2px;
+  line-height: 1;
+}
+
+/* Actions pinned to the far right */
+.topbar-actions {
   display: flex;
   gap: 0.5rem;
-  background: var(--panel-bg);
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+  align-items: center;
+}
+
+/* Old spacer no longer needed */
+.topbar-spacer { display: none; }
+
+/* On small screens, avoid overlap: stack buttons below title */
+@media (max-width: 520px) {
+  .topbar {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .topbar-title {
+    position: static;
+    transform: none;
+    width: 100%;
+    text-align: center;
+  }
+  .topbar-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+/* AUTH (modal) */
+.auth-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 1rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+}
+.auth-modal {
+  margin-top: 0.25rem;
 }
 .auth-input {
   background: var(--board-bg);
@@ -46,7 +102,8 @@ body {
   border-radius: 4px;
   padding: 0.5rem;
   color: var(--text);
-  min-width: 100px;
+  min-width: 140px;
+  flex: 1;
 }
 .auth-btn {
   background: var(--tile);
@@ -56,26 +113,12 @@ body {
   color: var(--text);
   cursor: pointer;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 .auth-btn:hover {
   background: var(--key-hover);
 }
 
-/* CONTROLS + TITLE */
-.controls {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 0.5rem;
-}
-.controls h1 {
-  justify-self: center;
-  margin: 0;
-  font-size: clamp(1.5rem,5vw,2.5rem);
-}
 .control-btn {
   background: var(--tile);
   border: 1px solid var(--border);
@@ -92,31 +135,31 @@ body {
 
 /* STREAK */
 .streak {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   font-weight: 600;
 }
 
 /* BOARD */
 #board {
   display: grid;
-  grid-template-columns: repeat(var(--cols),66px);
-  gap: 6px;
+  grid-template-columns: repeat(var(--cols), var(--tile-size));
+  gap: clamp(5px, 0.7vh, 6px);
   background: var(--board-bg);
-  padding: 6px;
+  padding: clamp(6px, 0.9vh, 8px);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.7);
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
 }
 .tile {
-  width: 66px;
-  height: 66px;
+  width: var(--tile-size);
+  height: var(--tile-size);
   background: var(--tile);
   border: 2px solid var(--border);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: var(--tile-font);
   font-weight: bold;
   color: var(--text);
   text-transform: uppercase;
@@ -128,8 +171,9 @@ body {
 /* KEYBOARD */
 #keyboard {
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 1rem;
+  max-width: var(--panel-w);
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 .keyboard-row {
   display: flex;
@@ -139,14 +183,14 @@ body {
 }
 .key {
   flex: 1;
-  height: 58px;
+  height: var(--key-height);
   background: var(--key-default);
   border: none;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: var(--key-font);
   font-weight: bold;
   color: #fff;
   cursor: pointer;
@@ -165,50 +209,113 @@ body {
 .key.present { background: var(--present); }
 .key.absent  { background: var(--key-absent); }
 
-/* FEEDBACK */
-#answer {
-  font-size: 1.1rem;
-  margin-bottom: 0;
-  padding-bottom: 0.25rem;
-}
 .message {
-  height: 1.5rem;
   color: #f66;
   text-align: center;
-  margin-bottom: 0.5rem;
+  margin: 0.25rem 0;
+}
+.message:empty { display: none; }
+
+/* RESULTS PANEL (hidden until the game ends) */
+.results {
+  width: var(--panel-w);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.hidden { display: none; }
+.results-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+.results-label {
+  opacity: 0.8;
+  font-weight: 600;
+}
+.results-answer {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  font-size: 1.1rem;
 }
 
-/* TRANSLATION UI */
-#translation-ui {
+/* TRANSLATION */
+.translation {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
-  margin: 0;
-  padding: 0.5rem 0;
+  margin-top: 0.25rem;
 }
-#translation-ui.hidden {
-  display: none;
-}
-#translation-ui input,
-#translation-ui button {
+.translation input,
+.translation button {
   background: var(--board-bg);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
   color: var(--text);
+}
+.translation input {
+  width: 160px;
+}
+.translation button {
   cursor: pointer;
 }
-#translation-ui input {
-  width: 140px;
-}
-#translation-ui button:hover {
+.translation button:hover {
   background: var(--key-hover);
 }
-
-/* TRANSLATION RESULT */
-#translation-result {
+.translation-result {
   text-align: center;
-  margin: 0;
-  padding-bottom: 1rem;
+  margin-top: 0.5rem;
+  padding-bottom: 0.25rem;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+}
+.modal-card {
+  position: relative;
+  width: min(520px, calc(100vw - 2rem));
+  margin: 12vh auto 0;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  padding: 0.9rem;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+.modal-title {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: var(--key-hover);
 }

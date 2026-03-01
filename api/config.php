@@ -15,7 +15,28 @@ session_set_cookie_params([
 
 session_start();
 
-require_once '/home/yso2dlxid2pc/.app_config.php';
+// Load DB credentials.
+// Preferred: store .app_config.php in your home directory (outside public_html).
+// Fallbacks allow local testing or alternative layouts.
+$configCandidates = [
+  '/home/yso2dlxid2pc/.app_config.php',
+  dirname(__DIR__) . '/.app_config.php',
+  __DIR__ . '/.app_config.php',
+];
+
+$loaded = false;
+foreach ($configCandidates as $path) {
+  if (is_readable($path)) {
+    require_once $path;
+    $loaded = true;
+    break;
+  }
+}
+
+if (! $loaded || !isset($DB_HOST, $DB_NAME, $DB_USER, $DB_PASS)) {
+  http_response_code(500);
+  exit(json_encode(['error' => 'Missing DB config']));
+}
 
 $dsn = "mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4";
 $options = [

@@ -11,20 +11,15 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LOGIN CARD -->
-  <div id="auth" class="auth-container">
-    <input id="user" class="auth-input"  type="text"     placeholder="Username">
-    <input id="pass" class="auth-input"  type="password" placeholder="Password">
-    <button id="login-btn"  class="auth-btn">Log In</button>
-    <button id="reg-btn"    class="auth-btn">Sign Up</button>
-    <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
-  </div>
-
-  <!-- CONTROLS GRID + TITLE -->
-  <div class="controls">
-    <button id="reset-btn" class="control-btn">Reset</button>
-    <h1 id="title">Fourdle</h1>
-    <button id="mode-btn"  class="control-btn">Triodle</button>
+  <!-- TOP BAR -->
+  <div class="topbar" role="banner">
+    <div class="topbar-spacer"></div>
+    <h1 id="title" class="topbar-title">Fourdle</h1>
+    <div class="topbar-actions" aria-label="Game actions">
+      <button id="reset-btn" class="control-btn">Reset</button>
+      <button id="mode-btn" class="control-btn">Triodle</button>
+      <button id="account-btn" class="control-btn">Account</button>
+    </div>
   </div>
 
   <!-- STREAK -->
@@ -35,19 +30,43 @@
   <!-- BOARD -->
   <div id="board" style="--cols:4;"></div>
 
+  <!-- FEEDBACK (used for "Not in list" etc.) -->
+  <div id="message" class="message"></div>
+
+  <!-- RESULTS (only shown when the game ends) -->
+  <div id="results-panel" class="results hidden" aria-live="polite">
+    <div class="results-row">
+      <div class="results-label">Answer</div>
+      <div id="answer" class="results-answer"></div>
+    </div>
+
+    <div id="translation-ui" class="translation">
+      <input id="lang-input" type="text" placeholder="Language">
+      <button id="translate-btn">Translate</button>
+    </div>
+    <div id="translation-result" class="translation-result"></div>
+  </div>
+
   <!-- ON-SCREEN KEYS -->
   <div id="keyboard"></div>
 
-  <!-- FEEDBACK -->
-  <div id="answer"></div>
-  <div id="message" class="message"></div>
-
-  <!-- TRANSLATION UI -->
-  <div id="translation-ui" class="hidden">
-    <input id="lang-input" type="text" placeholder="Language">
-    <button id="translate-btn">Translate</button>
+  <!-- ACCOUNT MODAL -->
+  <div id="account-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Account">
+      <div class="modal-header">
+        <div class="modal-title">Account</div>
+        <button id="account-close" class="icon-btn" aria-label="Close">✕</button>
+      </div>
+      <div id="auth" class="auth-container auth-modal">
+        <input id="user" class="auth-input" type="text" placeholder="Username" autocomplete="username">
+        <input id="pass" class="auth-input" type="password" placeholder="Password" autocomplete="current-password">
+        <button id="login-btn" class="auth-btn">Log In</button>
+        <button id="reg-btn" class="auth-btn">Sign Up</button>
+        <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
+      </div>
+    </div>
   </div>
-  <div id="translation-result"></div>
 
   <!-- SCRIPTS -->
   <script src="wordbank.js"></script>
