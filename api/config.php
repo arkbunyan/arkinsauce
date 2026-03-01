@@ -17,12 +17,6 @@ session_start();
 
 require_once '/home/yso2dlxid2pc/.app_config.php';
 
-// Check if config file was loaded
-if (!isset($DB_HOST) || !isset($DB_NAME) || !isset($DB_USER) || !isset($DB_PASS)) {
-    http_response_code(500);
-    exit(json_encode(['error' => 'Database configuration not found. Check .app_config.php exists.']));
-}
-
 $dsn = "mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4";
 $options = [
   PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

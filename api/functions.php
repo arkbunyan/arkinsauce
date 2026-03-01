@@ -10,8 +10,9 @@ function getUserId(): ?int {
 
 // Require authentication 
 function requireAuth(): void {
-    if (!getUserId()) {
-        throw new Exception('Unauthorized', 401);
+    if (! getUserId()) {
+        http_response_code(401);
+        exit(json_encode(['error'=>'Unauthorized']));
     }
 }
 
@@ -26,16 +27,12 @@ function findUser(string $username): ?array {
 // Create a new user with hashed password
 function createUser(string $username, string $password): int {
     global $db;
-    // Check if user already exists
-    if (findUser($username)) {
-        throw new Exception('Username already taken', 400);
-    }
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $db->prepare(
-        "INSERT INTO users (username, password_hash) VALUES (?, ?)"
+      "INSERT INTO users (username, password_hash) VALUES (?, ?)"
     );
-    if (!$stmt->execute([$username, $hash])) {
-        throw new Exception('Failed to create user', 500);
+    if (! $stmt->execute([$username, $hash])) {
+        throw new Exception('Username already taken');
     }
     return (int)$db->lastInsertId();
 }
@@ -54,15 +51,11 @@ function getStreak(int $userId): int {
     global $db;
     $stmt = $db->prepare("SELECT streak FROM users WHERE id = ?");
     $stmt->execute([$userId]);
-    return (int)($stmt->fetchColumn() ?: 0);
+    return (int)$stmt->fetchColumn();
 }
 
 // Update user's streak
 function updateStreak(int $userId, int $streak): void {
     global $db;
-    $stmt = $db->prepare("UPDATE users SET streak = ?, updated_at = NOW() WHERE id = ?");
-    if (!$stmt->execute([$streak, $userId])) {
-        throw new Exception('Failed to update streak', 500);
-    }
-}
-
+    $stmt = $db->prepare("UPDATE users SET streak = ? WHERE id = ?");
+    $stmt->execute([$streak, $userId]);
