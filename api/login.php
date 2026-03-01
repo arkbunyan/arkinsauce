@@ -1,30 +1,19 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
+header('Content-Type: application/json');
+require_once __DIR__.'/functions.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  bad_request('POST required');
+$data = json_decode(file_get_contents('php://input'), true);
+if (empty($data['username']) || empty($data['password'])) {
+    http_response_code(400);
+    exit(json_encode(['error'=>'Missing username or password']));
 }
 
-$body = json_body();
-$username = normalize_username((string)($body['username'] ?? ''));
-$password = (string)($body['password'] ?? '');
-
-if ($username === '' || $password === '') {
-  bad_request('Missing username or password');
+$userId = verifyUser($data['username'], $data['password']);
+if ($userId) {
+    session_regenerate_id(true);
+    $_SESSION['user_id'] = $userId;
+    echo json_encode(['success'=>true]);
+} else {
+    http_response_code(401);
+    echo json_encode(['error'=>'Invalid credentials']);
 }
-
-$stmt = $db->prepare('SELECT id, username, password_hash FROM users WHERE username = ? LIMIT 1');
-$stmt->execute([$username]);
-$user = $stmt->fetch();
-
-if (!$user || !password_verify($password, $user['password_hash'])) {
-  unauthorized('Invalid username or password');
-}
-
-// Ensure streak row exists
-$stmt2 = $db->prepare('INSERT IGNORE INTO streaks (user_id, streak) VALUES (?, 0)');
-$stmt2->execute([(int)$user['id']]);
-
-$_SESSION['user_id'] = (int)$user['id'];
-
-ok(['success' => true, 'username' => $user['username']]);

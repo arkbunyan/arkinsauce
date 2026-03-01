@@ -1,13 +1,7 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
+header('Content-Type: application/json');
+require_once __DIR__ . '/config.php';
 
-$uid = current_user_id();
-if ($uid === null) {
-  ok(['loggedIn' => false]);
-}
-
-$stmt = $db->prepare('SELECT username FROM users WHERE id = ? LIMIT 1');
-$stmt->execute([$uid]);
-$row = $stmt->fetch();
-
-ok(['loggedIn' => true, 'username' => $row ? $row['username'] : null]);
+echo json_encode([
+  'loggedIn' => isset($_SESSION['user_id']) && $_SESSION['user_id']
+]);

@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" />
-  <link rel="manifest" href="icons/site.webmanifest" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="manifest" href="icons/site.webmanifest">
   <title>Fourdle / Triodle</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- TOP BAR (title centered over board, buttons pinned to far right) -->
-  <header class="topbar">
-    <h1 id="title" class="topbar-title">Fourdle</h1>
+  <!-- LOGIN CARD -->
+  <div id="auth" class="auth-container">
+    <input id="user" class="auth-input"  type="text"     placeholder="Username">
+    <input id="pass" class="auth-input"  type="password" placeholder="Password">
+    <button id="login-btn"  class="auth-btn">Log In</button>
+    <button id="reg-btn"    class="auth-btn">Sign Up</button>
+    <button id="logout-btn" class="auth-btn" style="display:none">Log Out</button>
+  </div>
 
-    <div class="topbar-actions" aria-label="Top actions">
-      <button id="reset-btn" class="control-btn">Reset</button>
-      <button id="mode-btn" class="control-btn">Triodle</button>
-      <button id="account-btn" class="control-btn">Account</button>
-    </div>
-  </header>
+  <!-- CONTROLS GRID + TITLE -->
+  <div class="controls">
+    <button id="reset-btn" class="control-btn">Reset</button>
+    <h1 id="title">Fourdle</h1>
+    <button id="mode-btn"  class="control-btn">Triodle</button>
+  </div>
 
   <!-- STREAK -->
   <div id="streak-display" class="streak">
@@ -34,43 +39,15 @@
   <div id="keyboard"></div>
 
   <!-- FEEDBACK -->
+  <div id="answer"></div>
   <div id="message" class="message"></div>
 
-  <!-- POSTGAME (hidden until win/lose) -->
-  <section id="postgame" class="postgame hidden" aria-live="polite">
-    <div class="postgame-label">Answer</div>
-    <div id="answer" class="answer"></div>
-
-    <div id="translation-ui" class="translation">
-      <input id="lang-input" type="text" placeholder="Language" />
-      <button id="translate-btn" type="button">Translate</button>
-    </div>
-    <div id="translation-result" class="translation-result"></div>
-  </section>
-
-  <!-- ACCOUNT MODAL -->
-  <div id="account-modal" class="modal hidden" aria-hidden="true">
-    <div class="modal-backdrop" id="account-backdrop"></div>
-
-    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Account">
-      <div class="modal-head">
-        <div class="modal-title">Account</div>
-        <button id="account-close" class="modal-close" aria-label="Close">×</button>
-      </div>
-
-      <div class="auth-grid">
-        <input id="user" class="auth-input" type="text" placeholder="Username" autocomplete="username" />
-        <input id="pass" class="auth-input" type="password" placeholder="Password" autocomplete="current-password" />
-        <div class="auth-actions">
-          <button id="login-btn" class="auth-btn" type="button">Log In</button>
-          <button id="reg-btn" class="auth-btn" type="button">Sign Up</button>
-          <button id="logout-btn" class="auth-btn" type="button" style="display:none">Log Out</button>
-        </div>
-      </div>
-
-      <div id="auth-status" class="auth-status" aria-live="polite"></div>
-    </div>
+  <!-- TRANSLATION UI -->
+  <div id="translation-ui" class="hidden">
+    <input id="lang-input" type="text" placeholder="Language">
+    <button id="translate-btn">Translate</button>
   </div>
+  <div id="translation-result"></div>
 
   <!-- SCRIPTS -->
   <script src="wordbank.js"></script>

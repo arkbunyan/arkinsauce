@@ -1,31 +1,26 @@
 <?php
-require_once __DIR__ . '/bootstrap.php';
+header('Content-Type: application/json');
+require_once __DIR__.'/functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-  $uid = current_user_id();
-  if ($uid === null) {
-    ok(['streak' => 0]);
-  }
+    requireAuth();
+    $current = getStreak(getUserId());
+    echo json_encode(['streak' => $current]);
 
-  $stmt = $db->prepare('SELECT streak FROM streaks WHERE user_id = ? LIMIT 1');
-  $stmt->execute([$uid]);
-  $row = $stmt->fetch();
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireAuth();
+    $data = json_decode(file_get_contents('php://input'), true);
 
-  ok(['streak' => $row ? (int)$row['streak'] : 0]);
+    if (! isset($data['streak']) || ! is_int($data['streak'])) {
+        http_response_code(400);
+        exit(json_encode(['error'=>'Invalid streak']));
+    }
+
+    updateStreak(getUserId(), $data['streak']);
+    echo json_encode(['success'=>true]);
+
+} else {
+    http_response_code(405);
+    header('Allow: GET, POST');
+    echo json_encode(['error'=>'Method not allowed']);
 }
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $uid = require_login();
-
-  $body = json_body();
-  $streak = (int)($body['streak'] ?? 0);
-  if ($streak < 0) $streak = 0;
-  if ($streak > 9999) $streak = 9999;
-
-  $stmt = $db->prepare('INSERT INTO streaks (user_id, streak) VALUES (?, ?) ON DUPLICATE KEY UPDATE streak = VALUES(streak)');
-  $stmt->execute([$uid, $streak]);
-
-  ok(['success' => true, 'streak' => $streak]);
-}
-
-bad_request('Unsupported method');

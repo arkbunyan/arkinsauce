@@ -1,10 +1,8 @@
-// MODE TOGGLE
+//  MODE TOGGLE 
 let isFourdle = true;   // true = 4-letter mode, false = 3-letter mode
 let cols, wordList, guessList;
 
 const modeBtn = document.getElementById('mode-btn');
-const resetBtn = document.getElementById('reset-btn');
-
 modeBtn.addEventListener('click', () => {
   isFourdle = !isFourdle;
   applyMode();
@@ -31,26 +29,15 @@ function applyMode() {
 }
 
 
-// GAME SETUP
+//  GAME SETUP 
 const board     = document.getElementById('board');
 const keyboard  = document.getElementById('keyboard');
-const postgame  = document.getElementById('postgame');
 const answerEl  = document.getElementById('answer');
 const messageEl = document.getElementById('message');
+const resetBtn  = document.getElementById('reset-btn');
 const rows      = 7;
 
 let solution, row, col, gameOver;
-
-function hidePostgame() {
-  postgame.classList.add('hidden');
-  answerEl.textContent = '';
-  document.getElementById('translation-result').textContent = '';
-  document.getElementById('lang-input').value = '';
-}
-
-function showPostgame() {
-  postgame.classList.remove('hidden');
-}
 
 function initGame() {
   // pick a random solution
@@ -75,7 +62,7 @@ function initGame() {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'keyboard-row';
 
-    // ENTER at the start of 3rd row
+    // ⏎ ENTER at the start of 3rd row
     if (idx === 2) {
       const enter = document.createElement('button');
       enter.textContent = '⏎';
@@ -93,7 +80,7 @@ function initGame() {
       rowDiv.appendChild(key);
     }
 
-    // BACK at the end of 3rd row
+    // ⌫ BACK at the end of 3rd row
     if (idx === 2) {
       const back = document.createElement('button');
       back.textContent = '⌫';
@@ -105,9 +92,11 @@ function initGame() {
     keyboard.appendChild(rowDiv);
   });
 
-  // hide postgame UI and messages
-  hidePostgame();
+  // hide answer and messages
+  answerEl.textContent = '';
   messageEl.textContent = '';
+  document.getElementById('translation-ui').classList.add('hidden');
+  document.getElementById('translation-result').textContent = '';
 }
 
 resetBtn.addEventListener('click', () => {
@@ -116,14 +105,8 @@ resetBtn.addEventListener('click', () => {
 });
 
 
-// ACCOUNT MODAL + AUTH
+//  STREAK & AUTH 
 let streakCount = 0;
-
-const accountBtn   = document.getElementById('account-btn');
-const accountModal = document.getElementById('account-modal');
-const accountClose = document.getElementById('account-close');
-const accountBackdrop = document.getElementById('account-backdrop');
-const authStatus   = document.getElementById('auth-status');
 
 const userIn    = document.getElementById('user');
 const passIn    = document.getElementById('pass');
@@ -131,43 +114,6 @@ const loginBtn  = document.getElementById('login-btn');
 const regBtn    = document.getElementById('reg-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const streakEl  = document.getElementById('streak-count');
-
-function openModal() {
-  accountModal.classList.remove('hidden');
-  accountModal.setAttribute('aria-hidden', 'false');
-  userIn.focus();
-}
-
-function closeModal() {
-  accountModal.classList.add('hidden');
-  accountModal.setAttribute('aria-hidden', 'true');
-}
-
-accountBtn.addEventListener('click', () => openModal());
-accountClose.addEventListener('click', () => closeModal());
-accountBackdrop.addEventListener('click', () => closeModal());
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && !accountModal.classList.contains('hidden')) {
-    closeModal();
-  }
-});
-
-function setAuthStatus(text, isError = false) {
-  authStatus.textContent = text || '';
-  authStatus.style.color = isError ? '#f66' : 'rgba(224,224,224,0.9)';
-}
-
-function toggleAuth(loggedIn, username = '') {
-  loginBtn.style.display  = loggedIn ? 'none' : '';
-  regBtn.style.display    = loggedIn ? 'none' : '';
-  logoutBtn.style.display = loggedIn ? '' : 'none';
-  if (loggedIn) {
-    setAuthStatus(username ? `Logged in as ${username}` : 'Logged in');
-  } else {
-    setAuthStatus('');
-  }
-}
 
 // load streak from server
 async function fetchStreak() {
@@ -189,77 +135,75 @@ async function updateStreak() {
   if (!res.ok) console.error('updateStreak failed', res.status);
 }
 
+
 function onWin() {
   streakCount++;
   streakEl.textContent = streakCount;
   updateStreak();
 }
 
+function toggleAuth(loggedIn) {
+  loginBtn.style.display  = loggedIn ? 'none' : '';
+  regBtn.style.display    = loggedIn ? 'none' : '';
+  logoutBtn.style.display = loggedIn ? '' : 'none';
+}
+
 loginBtn.addEventListener('click', async () => {
-  setAuthStatus('');
   const res = await fetch('api/login.php', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    credentials: 'same-origin',
     body: JSON.stringify({
       username: userIn.value,
       password: passIn.value
     })
   });
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json();
   if (data.success) {
-    toggleAuth(true, data.username || userIn.value);
+    toggleAuth(true);
     fetchStreak();
-    closeModal();
   } else {
-    setAuthStatus(data.error || 'Login failed', true);
+    alert(data.error);
   }
 });
 
 regBtn.addEventListener('click', async () => {
-  setAuthStatus('');
   const res = await fetch('api/register.php', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    credentials: 'same-origin',
     body: JSON.stringify({
       username: userIn.value,
       password: passIn.value
     })
   });
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json();
   if (data.success) {
-    toggleAuth(true, data.username || userIn.value);
+    toggleAuth(true);
     fetchStreak();
-    closeModal();
   } else {
-    setAuthStatus(data.error || 'Sign up failed', true);
+    alert(data.error);
   }
 });
 
 logoutBtn.addEventListener('click', async () => {
-  await fetch('api/logout.php', { credentials: 'same-origin' });
+  await fetch('api/logout.php');
   toggleAuth(false);
   streakCount = 0;
   streakEl.textContent = '0';
-  closeModal();
 });
 
 // check session on load
-fetch('api/check_auth.php', { credentials: 'same-origin' })
+fetch('api/check_auth.php')
   .then(r => r.json())
-  .then(({loggedIn, username}) => {
-    toggleAuth(Boolean(loggedIn), username || '');
+  .then(({loggedIn}) => {
+    toggleAuth(loggedIn);
     if (loggedIn) fetchStreak();
   })
   .catch(e => console.error(e));
 
 
-// INPUT HANDLING
+//  INPUT HANDLING ===
 function handleKey(k) {
   if (gameOver) return;
-  if (!accountModal.classList.contains('hidden')) return;
-
   if (k === 'ENTER') return handleEnter();
   if (k === 'BACK')  return handleDelete();
   if (/^[A-Z]$/.test(k) && col < cols) {
@@ -320,6 +264,7 @@ function handleEnter() {
     const tile = board.children[row*cols + i];
     tile.classList.add(status[i]);
 
+    // key coloring with priority: correct > present > absent
     keys.forEach(kb => {
       if (kb.textContent === guess[i].toUpperCase()) {
         if (status[i] === 'correct') {
@@ -330,7 +275,7 @@ function handleEnter() {
             kb.classList.remove('absent');
             kb.classList.add('present');
           }
-        } else {
+        } else { // absent
           if (!kb.classList.contains('correct') &&
               !kb.classList.contains('present')) {
             kb.classList.add('absent');
@@ -345,7 +290,8 @@ function handleEnter() {
     onWin();
     gameOver = true;
     answerEl.textContent = solution;
-    showPostgame();
+    document.getElementById('translation-ui')
+            .classList.remove('hidden');
     return;
   }
 
@@ -358,23 +304,22 @@ function handleEnter() {
     updateStreak();
     gameOver = true;
     answerEl.textContent = solution;
-    showPostgame();
+    document.getElementById('translation-ui')
+            .classList.remove('hidden');
   }
 }
 
 // ignore keypresses when typing in inputs/buttons
 document.addEventListener('keydown', e => {
   const a = document.activeElement;
-  if (a && (a.tagName === 'INPUT' || a.tagName === 'BUTTON')) return;
-  if (!accountModal.classList.contains('hidden')) return;
-
-  if (e.key === 'Enter') handleKey('ENTER');
+  if (a.tagName === 'INPUT' || a.tagName === 'BUTTON') return;
+  if (e.key === 'Enter')      handleKey('ENTER');
   else if (e.key === 'Backspace') handleKey('BACK');
   else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
 });
 
 
-// TRANSLATION
+//  TRANSLATION
 const langMap = {
   german:'de', spanish:'es', french:'fr',
   italian:'it', portuguese:'pt', dutch:'nl', hindi:'hi'
@@ -398,6 +343,6 @@ transBtn.addEventListener('click', () => {
 });
 
 
-// INITIALIZE
+//  INITIALIZE
 applyMode();
 initGame();
