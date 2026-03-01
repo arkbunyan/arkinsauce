@@ -6,25 +6,14 @@
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
     
-    # Rewrite /api/auth/check to /api/auth/check.php
-    RewriteRule ^auth/check$ auth/check.php [L]
+    # Route /api/auth/* to /api/auth/index.php
+    RewriteRule ^auth/ auth/index.php [L]
     
-    # Rewrite /api/auth/login to /api/auth/login.php
-    RewriteRule ^auth/login$ auth/login.php [L]
-    
-    # Rewrite /api/auth/register to /api/auth/register.php
-    RewriteRule ^auth/register$ auth/register.php [L]
-    
-    # Rewrite /api/auth/logout to /api/auth/logout.php
-    RewriteRule ^auth/logout$ auth/logout.php [L]
-    
-    # Rewrite /api/game/streak to /api/game/streak.php
-    RewriteRule ^game/streak$ game/streak.php [L]
+    # Route /api/game/* to /api/game/index.php
+    RewriteRule ^game/ game/index.php [L]
 </IfModule>
 
-# Set proper headers for API responses
+# Security headers
 <FilesMatch "\.php$">
     Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "DENY"
-    Header set X-XSS-Protection "1; mode=block"
 </FilesMatch>
