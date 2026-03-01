@@ -1,18 +1,13 @@
 <?php
 // secure cookie before starting the session
-
-$isHttps =
-  (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-  (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
-
 session_set_cookie_params([
-  'lifetime' => 60*60*24*30,
+  'lifetime' => 60*60*24*30,  // 30 days
   'path'     => '/',
-  'secure'   => $isHttps,
+  'domain'   => 'arkinsauce.com',
+  'secure'   => true,
   'httponly' => true,
   'samesite' => 'Lax',
 ]);
-
 session_start();
 
 require_once '/home/yso2dlxid2pc/.app_config.php';

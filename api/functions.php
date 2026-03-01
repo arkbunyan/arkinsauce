@@ -59,3 +59,4 @@ function updateStreak(int $userId, int $streak): void {
     global $db;
     $stmt = $db->prepare("UPDATE users SET streak = ? WHERE id = ?");
     $stmt->execute([$streak, $userId]);
+}

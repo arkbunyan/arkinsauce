@@ -26,11 +26,11 @@ class API {
       const response = await fetch(url, config);
       const result = await response.json();
 
-      if (!response.ok || !result.success) {
+      if (!response.ok || (result.error)) {
         throw new Error(result.error || 'An error occurred');
       }
 
-      return result.data || result;
+      return result;
     } catch (error) {
       console.error('API Error:', error);
       throw error;
