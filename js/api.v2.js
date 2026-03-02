@@ -10,7 +10,7 @@ class API {
   }
 
   /**
-   * Generic fetch wrapper with safer JSON handling
+   * Generic fetch wrapper
    */
   async request(endpoint, options = {}) {
     const cleanEndpoint = String(endpoint || '').replace(/^\/+/, '');
@@ -31,7 +31,6 @@ class API {
 
     const response = await fetch(url, config);
 
-    // Always read text first so empty/invalid responses don't crash with response.json().
     const text = await response.text();
 
     if (!text || !text.trim()) {
@@ -42,7 +41,6 @@ class API {
     try {
       result = JSON.parse(text);
     } catch (e) {
-      // Helpful when the server returns HTML or a PHP error page.
       const preview = text.slice(0, 200);
       throw new Error(`Server returned invalid JSON (HTTP ${response.status}). First bytes: ${preview}`);
     }

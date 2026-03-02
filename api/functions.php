@@ -31,8 +31,6 @@ function createUser(string $username, string $password): int {
     $stmt->execute([$username, $hash]);
     return (int)$db->lastInsertId();
   } catch (PDOException $e) {
-    // Common duplicate-username errors:
-    //  - MySQL: SQLSTATE 23000, driver error 1062
     $sqlState = $e->getCode();
     $driverCode = (int)($e->errorInfo[1] ?? 0);
 

@@ -31,7 +31,6 @@ function switchMode() {
 function handleKeyPress(key) {
   if (gameState.gameOver) return;
   
-  // Remove focus from any button to prevent space/enter from activating buttons
   document.activeElement?.blur();
 
   if (key === 'ENTER') {

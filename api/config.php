@@ -37,11 +37,9 @@ session_set_cookie_params([
 
 session_start();
 
-// ---- Database config ----
-// Priority:
-//  1) Environment variables (DB_HOST, DB_NAME, DB_USER, DB_PASS)
-//  2) .app_config.php file located outside public_html (recommended)
-//  3) .app_config.php inside this repo (for local/dev)
+//  1) Environment variables
+//  2) .app_config.php file located outside public_html
+//  3) .app_config.php inside this repo
 
 $DB_HOST = getenv('DB_HOST') ?: null;
 $DB_NAME = getenv('DB_NAME') ?: null;
