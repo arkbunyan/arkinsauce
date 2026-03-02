@@ -5,13 +5,12 @@
 
 class API {
   constructor() {
-    // Use a relative base path so the app works whether it's hosted at the
-    // domain root (/) or inside a subdirectory (e.g. /arkinsauce/).
+    // Relative path so it works at domain root and in subfolders.
     this.baseURL = 'api';
   }
 
   /**
-   * Generic fetch wrapper with error handling
+   * Generic fetch wrapper with safer JSON handling
    */
   async request(endpoint, options = {}) {
     const cleanEndpoint = String(endpoint || '').replace(/^\/+/, '');
@@ -22,9 +21,7 @@ class API {
       ...options,
     };
 
-    // Only set JSON headers when we're actually sending a JSON body.
-    // (Some servers/middleware behave oddly when GET requests include
-    // Content-Type: application/json.)
+    // Only set JSON header when sending a JSON body.
     if (config.body != null) {
       config.headers = {
         ...(config.headers || {}),
@@ -32,30 +29,29 @@ class API {
       };
     }
 
-    try {
-      const response = await fetch(url, config);
+    const response = await fetch(url, config);
 
-      const text = await response.text();
-      if (!text || !text.trim()) {
-        throw new Error(`Empty response from server (HTTP ${response.status})`);
-      }
+    // Always read text first so empty/invalid responses don't crash with response.json().
+    const text = await response.text();
 
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (_) {
-        throw new Error(`Server returned invalid JSON (HTTP ${response.status})`);
-      }
-
-      if (!response.ok || (result.error)) {
-        throw new Error(result.error || 'An error occurred');
-      }
-
-      return result;
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+    if (!text || !text.trim()) {
+      throw new Error(`Empty response from server (HTTP ${response.status})`);
     }
+
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (e) {
+      // Helpful when the server returns HTML or a PHP error page.
+      const preview = text.slice(0, 200);
+      throw new Error(`Server returned invalid JSON (HTTP ${response.status}). First bytes: ${preview}`);
+    }
+
+    if (!response.ok || result.error) {
+      throw new Error(result.error || `Request failed (HTTP ${response.status})`);
+    }
+
+    return result;
   }
 
   /**
@@ -94,23 +90,18 @@ class API {
    * Log out user
    */
   async logout() {
-    await this.request('/logout.php', { method: 'POST' });
+    return await this.request('/logout.php');
   }
 
   /**
-   * Fetch user's current streak
+   * Get user's streak count
    */
   async getStreak() {
-    try {
-      const data = await this.request('/streak.php', { method: 'GET' });
-      return data.streak || 0;
-    } catch (error) {
-      return 0;
-    }
+    return await this.request('/streak.php');
   }
 
   /**
-   * Update user's streak
+   * Update user's streak count
    */
   async updateStreak(streak) {
     return await this.request('/streak.php', {
@@ -127,7 +118,19 @@ class API {
       const response = await fetch(
         `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLanguage}`
       );
-      const data = await response.json();
+
+      const raw = await response.text();
+      if (!raw || !raw.trim()) {
+        return text;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (_) {
+        return text;
+      }
+
       return data.responseData?.translatedText || text;
     } catch (error) {
       console.error('Translation Error:', error);

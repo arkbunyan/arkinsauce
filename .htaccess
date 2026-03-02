@@ -1,0 +1,9 @@
+# Disable aggressive caching during development/debugging.
+# If your host doesn't support mod_headers, this will be ignored.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+  </FilesMatch>
+</IfModule>
