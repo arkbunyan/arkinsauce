@@ -23,6 +23,9 @@ npm run preview
 Deploy the contents of `dist/` to any static host. The site works at a domain
 root or under a subdirectory. It needs no server runtime or environment variables.
 
+For Vercel, `vercel.json` sets the build command to `npm run build` and the
+output directory to `dist`. Node.js is pinned to major version 24.
+
 ## Structure
 
 - `src/index.html` — page, metadata, and destinations.
