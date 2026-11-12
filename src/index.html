@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="arkinsauce — films and games." />
+    <meta name="description" content="arkinsauce — films, games, and radio." />
     <meta name="theme-color" content="#faf9f6" />
     <title>&#8203;</title>
     <link rel="icon" type="image/png" sizes="64x64" href="./favicon-circle.png" />
@@ -15,13 +15,23 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
+    <script src="./radio.js" defer></script>
   </head>
   <body>
     <main>
-      <nav aria-label="Find arkinsauce">
-        <a href="https://letterboxd.com/arkinsauce/films/by/date/" target="_blank" rel="noopener noreferrer">letterboxd</a>
-        <a href="https://backloggd.com/u/arkinsauce/games/played/by/user-rating/type:played;/" target="_blank" rel="noopener noreferrer">backloggd</a>
-      </nav>
+      <div class="interests">
+        <nav aria-label="Find arkinsauce">
+          <a href="https://letterboxd.com/arkinsauce/films/by/date/" target="_blank" rel="noopener noreferrer">letterboxd</a>
+          <a href="https://backloggd.com/u/arkinsauce/games/played/by/user-rating/type:played;/" target="_blank" rel="noopener noreferrer">backloggd</a>
+        </nav>
+        <audio id="radio-audio" src="https://s5.radio.co/sc9cb59935/listen" preload="none" hidden></audio>
+        <button id="radio-toggle" type="button" aria-label="Play Poolsuite FM" title="Play Poolsuite FM" aria-controls="radio-audio" aria-pressed="false" data-state="paused" hidden>
+          <svg class="radio-icon" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+            <path class="radio-play" d="M3 1.5 10 6 3 10.5Z" />
+            <path class="radio-pause" d="M2 2h3v8H2zM7 2h3v8H7z" />
+          </svg>
+        </button>
+      </div>
     </main>
   </body>
 </html>

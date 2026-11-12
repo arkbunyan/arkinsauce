@@ -26,6 +26,7 @@ main {
   place-items: center;
 }
 
+.interests,
 nav {
   display: flex;
   flex-direction: column;
@@ -48,10 +49,48 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
-a:focus-visible {
+a:focus-visible,
+button:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 4px;
   border-radius: 2px;
+}
+
+#radio-toggle {
+  display: grid;
+  min-width: 44px;
+  min-height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+#radio-toggle:hover {
+  opacity: 0.65;
+}
+
+.radio-icon {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.radio-pause,
+#radio-toggle[data-state="playing"] .radio-play {
+  display: none;
+}
+
+#radio-toggle[data-state="playing"] .radio-pause {
+  display: initial;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 @media (forced-colors: active) {
