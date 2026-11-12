@@ -33,6 +33,14 @@ nav {
   align-items: center;
 }
 
+.brave-mark {
+  display: block;
+  width: clamp(80px, 16svh, 112px);
+  height: auto;
+  margin-bottom: 24px;
+  mix-blend-mode: multiply;
+}
+
 a {
   display: grid;
   min-height: 44px;
