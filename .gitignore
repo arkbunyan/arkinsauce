@@ -12,3 +12,6 @@ private/
 # logs
 *.log
 tmp/
+
+# generated build
+dist/
